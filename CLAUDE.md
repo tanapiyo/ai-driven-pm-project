@@ -22,43 +22,118 @@ The project workflow includes 5 major approval gates:
 4. **Acceptance Prep Gate**: Test coverage complete, traceability verified
 5. **Final Acceptance Gate**: Acceptance criteria met, deliverables and operational docs confirmed
 
-## Repository Structure
+## Actual Repository Structure
 
-### `/テンプレート/` - Document Templates
+The repository is organized by **project phase**, not by document type:
 
-Markdown templates for all project deliverables:
-- `プロジェクト計画書.md` - Project plan (goals, ROI, team, milestones, KPIs, QCDS constraints, governance)
-- `業務記述書_テンプレート.md` - Business process description (used to generate UML diagrams)
-- `要件定義書_テンプレート.md` - Requirements specification (15-chapter structure)
-- `WBS_テンプレート.md` - Work breakdown structure
-- `見積書_テンプレート.md` - Cost estimate
-- `テストケース_テンプレート.md` - Test case specification
-- `受入基準書_テンプレート.md` - Acceptance criteria and procedures
-- `進捗報告書_テンプレート.md` - Progress report
-- `質問管理表_テンプレート.md` - Question tracking
-- `合意事項・未決事項管理表.md` - Agreements and open issues tracker
+```
+ai-driven-pm-project/
+├── 00_docs/                          # Project methodology guides
+│   ├── ヒアリングマイルストーン_プロジェクト立ち上げフェーズ.md
+│   └── 要件定義フェーズ_顧客コミュニケーションマイルストーン.md
+│
+├── 01_要求分析/                      # Phase 1: Requirements Analysis
+│   ├── プロンプト/v1/
+│   │   ├── 議事録から不明点抽出プロンプト.md
+│   │   ├── プロジェクト計画書作成プロンプト.md
+│   │   ├── 課題整理プロンプト.md
+│   │   ├── 概算マイルストーン作成プロンプト.md
+│   │   └── 使用システム・帳票リスト作成プロンプト.md
+│   └── テンプレート/
+│       ├── プロジェクト計画書テンプレート.md
+│       └── 業務フロー作成テンプレートパック/
+│           ├── 業務フロー作成ガイド.md
+│           ├── 業務詳細書テンプレート.md
+│           └── チェックリストテンプレート.md
+│
+├── 02_要件定義/                      # Phase 2: Requirements Definition
+│   ├── プロンプト/
+│   │   ├── 00_既存システムデータヒアリング整理プロンプト.md
+│   │   ├── 01_要件定義書作成プロンプト.md
+│   │   ├── 02_機能一覧作成プロンプト.md
+│   │   ├── 03_ユースケース作成プロンプト.md
+│   │   ├── 04_画面遷移IF作成プロンプト.md
+│   │   ├── 05_非機能要件チェックリスト作成プロンプト.md
+│   │   ├── 07_見積書作成プロンプト.md
+│   │   └── 08_WBS作成プロンプト.md
+│   │   (Note: 06_ is missing - not yet created)
+│   └── テンプレート/
+│       ├── 00_既存システム構成整理テンプレート.md
+│       ├── 00_既存データ整理テンプレート.md
+│       ├── 00_外部IF一覧テンプレート.md
+│       ├── 01_要件定義書テンプレート.md
+│       ├── 02_機能一覧テンプレート.md
+│       ├── 03_ユースケーステンプレート.md
+│       ├── 04_画面遷移テンプレート.md
+│       ├── 05_非機能要件テンプレート.md
+│       ├── 07_見積書テンプレート.md
+│       └── 08_WBSテンプレート.md
+│
+├── 03_開発工程/                      # Phase 3: Design & Development Prep
+│   ├── プロンプト/
+│   │   ├── システム構成図_プロンプト.md
+│   │   ├── DB設計_プロンプト.md
+│   │   ├── API設計_プロンプト.md
+│   │   ├── 画面設計_プロンプト.md
+│   │   ├── 帳票設計_プロンプト.md
+│   │   └── 運用設計_プロンプト.md
+│   └── テンプレート/
+│       ├── システム構成図.md
+│       ├── DB設計.md
+│       ├── API設計.md
+│       ├── 画面設計.md
+│       ├── 帳票設計.md
+│       └── 運用設計.md
+│
+├── 04_テスト/                        # Phase 4: Testing
+│   ├── プロンプト/
+│   │   ├── テスト計画書_プロンプト.md
+│   │   ├── テスト観点一覧_プロンプト.md
+│   │   ├── 機能テストケース_プロンプト.md
+│   │   ├── 非機能テストケース_プロンプト.md
+│   │   └── テスト結果報告書_プロンプト.md
+│   └── テンプレート/
+│       ├── テスト計画書.md
+│       ├── テスト観点一覧.md
+│       ├── 機能テストケース.md
+│       ├── 非機能テストケース.md
+│       ├── テスト結果報告書.md
+│       ├── テストケース_テンプレート.md
+│       ├── 受入基準書_テンプレート.md
+│       └── 検収計画書_テンプレート.md
+│
+├── 05_進捗報告/                      # Progress Tracking
+│   ├── プロンプト/
+│   │   ├── 進捗報告書自動生成プロンプト.md
+│   │   ├── Git履歴から進捗レポート自動生成プロンプト.md
+│   │   ├── 遅延リスク判定プロンプト.md
+│   │   ├── 課題リスク分析プロンプト.md
+│   │   └── 次週計画生成プロンプト.md
+│   └── テンプレート/
+│       └── 週次進捗報告書_テンプレート.md
+│
+└── 99_プロジェクト全体/              # Project-wide documents
+    ├── 質問管理表_テンプレート.md
+    └── Notion構成.md
+```
 
-### `/プロンプト/` - AI Prompts
+## Key File Path Patterns
 
-Prompts for generating project artifacts from meeting notes and other inputs:
-- `議事録から要点抽出プロンプト.md` - Extract key points from meeting minutes (problems, goals, constraints)
-- `議事録から不明点抽出プロンプト.md` - Identify open questions and contradictions
-- `業務記述書作成プロンプト.md` - Generate business process descriptions from interviews
-- `業務フロー図作成プロンプト.md` - Convert markdown process descriptions to UML (PlantUML/Mermaid)
-- `ペインポイント整理プロンプト.md` - Categorize and prioritize pain points with impact/effort matrix
-- `プロジェクト計画書作成プロンプト.md` - Generate project plan from all gathered information
-- `機能一覧作成プロンプト.md` - Extract feature list from To-Be process flows
+### Within prompts, templates are referenced as:
+- `{phase}/テンプレート/{template_name}.md`
+- Example: `02_要件定義/テンプレート/01_要件定義書テンプレート.md`
 
-### `/00_docs/` - Project Guides
+### Cross-phase references:
+- Requirements prompts → `01_要求分析/テンプレート/` for business flows
+- Design prompts → `02_要件定義/テンプレート/` for requirements
+- Test prompts → `03_開発工程/テンプレート/` for design specs
 
-- `ヒアリングマイルストーン_プロジェクト立ち上げフェーズ.md` - 4-week interview plan (weekly meetings) to gather all information for project plan and As-Is/To-Be flows
-- `テンプレート準備チェックリスト.md` - Checklist of all templates and tools to prepare before project kickoff
+### Important: Template Naming Convention
+- Templates use numbering (00_, 01_, 02_, etc.) to indicate workflow order
+- Prompts match template numbers for easy correlation
+- Note: 06_ series is intentionally missing in requirements phase
 
-### `/10_ヒアリング/`, `/11_現行業務分析/`, `/12_課題と要求整理/`
-
-Folders for storing actual project artifacts during execution (empty templates).
-
-## Workflow Overview
+## Workflow Phases
 
 ### Phase 1: Requirements Gathering & Analysis (1 month, 4 meetings)
 
@@ -68,81 +143,153 @@ Folders for storing actual project artifacts during execution (empty templates).
 **Week 4**: Final review and approval → All deliverables approved
 
 **Key artifacts**:
-- Project plan (goals, ROI, team, milestones, KPIs, governance)
-- As-Is business process description (markdown) → UML diagram
-- To-Be business process description (markdown) → UML diagram
-- Pain points list with priorities
+- Project plan: `01_要求分析/テンプレート/プロジェクト計画書テンプレート.md`
+- Business flows: `01_要求分析/テンプレート/業務フロー作成テンプレートパック/`
+- Pain points list (generated via prompt)
 
-### Phase 2: Requirements Definition
+**Primary prompts**:
+- `01_要求分析/プロンプト/v1/議事録から不明点抽出プロンプト.md`
+- `01_要求分析/プロンプト/v1/課題整理プロンプト.md` (pain point analysis)
+- `01_要求分析/プロンプト/v1/プロジェクト計画書作成プロンプト.md`
+
+### Phase 2: Requirements Definition (1-2 months, 6 meetings)
 
 From To-Be flows, generate:
-- Feature list
-- Use cases
-- Screen transitions & interfaces
-- Non-functional requirements checklist
-- Post-implementation business flows
-- Agreements/open issues tracker
+- Feature list → `02_機能一覧テンプレート.md`
+- Use cases → `03_ユースケーステンプレート.md`
+- Screen transitions → `04_画面遷移テンプレート.md`
+- Non-functional requirements → `05_非機能要件テンプレート.md`
+- Estimate → `07_見積書テンプレート.md`
+- WBS → `08_WBSテンプレート.md`
 
-Deliverables:
-- Requirements specification document
-- Cost breakdown (features × tasks × assumptions) with confidence tags
-- WBS with critical path and buffers
-- Estimate document
+**Key workflow**:
+1. Use `00_既存システムデータヒアリング整理プロンプト.md` to gather existing system info
+2. Use `01_要件定義書作成プロンプト.md` to consolidate all requirements
+3. Generate estimates with confidence tags (Rough/Medium/Firm)
 
-### Phase 3: Design & Development Prep
+### Phase 3: Design & Development Prep (1-2 months)
 
-- System architecture diagram
-- UI samples (using v0 and Figma)
-- Database design
-- API design
-- Progress tracking templates
-- KPI/metrics definitions
-- Question management table
+**Order of operations**:
+1. System architecture → `システム構成図_プロンプト.md`
+2. Database design → `DB設計_プロンプト.md`
+3. API design → `API設計_プロンプト.md`
+4. UI design → `画面設計_プロンプト.md`
+5. Report design → `帳票設計_プロンプト.md`
+6. Operations design → `運用設計_プロンプト.md`
 
-### Phase 4: Development & Testing
+**Important**: Each design prompt references requirements from Phase 2 and may reference other design outputs.
 
-- Task breakdown
-- Test case generation from requirements
-- Weekly progress tracking (using Git commits + task completion)
-- Risk detection (remaining tasks vs. remaining time)
-- Client progress reports (auto-generated)
+### Phase 4: Development & Testing (2-3 months)
+
+**Test document generation order**:
+1. Test plan → `テスト計画書_プロンプト.md`
+2. Test perspectives → `テスト観点一覧_プロンプト.md`
+3. Functional test cases → `機能テストケース_プロンプト.md`
+4. Non-functional test cases → `非機能テストケース_プロンプト.md`
+5. Test results report → `テスト結果報告書_プロンプト.md`
+
+**Progress tracking**:
+- Weekly reports using Git history: `Git履歴から進捗レポート自動生成プロンプト.md`
+- Delay risk detection: `遅延リスク判定プロンプト.md`
 
 ### Phase 5: Delivery
 
-- Acceptance criteria document
-- Acceptance test procedures
-- Deliverables inventory
-- Operational documentation
+Uses templates from Phase 4:
+- `受入基準書_テンプレート.md`
+- `検収計画書_テンプレート.md`
 
 ## Key Conventions
 
 ### Business Process Documentation
 
-1. **Create markdown first**: Use `業務記述書_テンプレート.md` to capture processes in structured markdown
-2. **Convert to UML**: Use prompts in `業務フロー図作成プロンプト.md` to generate PlantUML or Mermaid diagrams
+1. **Create markdown first**: Use business flow templates in `01_要求分析/テンプレート/業務フロー作成テンプレートパック/`
+2. **Convert to UML**: Business flow templates include guidance for PlantUML/Mermaid conversion
 3. **Separate As-Is and To-Be**: Always maintain both current and future state flows
 
 ### Pain Point Analysis
 
-Use 2x2 matrix for prioritization:
+Use 2x2 matrix for prioritization (via `課題整理プロンプト.md`):
 - **Impact** (High/Medium/Low) × **Ease of improvement** (Easy/Medium/Hard)
 - Results in 4 quadrants: S (top priority), A (phased approach), B (quick wins), C (defer)
 
-### Client Communication
+### Estimate Confidence Tags
 
-- **Avoid technical jargon**: Translate all technical terms to business language (see examples in interview milestone guide)
-- **Provide options**: Always offer 2-3 alternatives (e.g., Plan A/B/C with different cost/scope/timeline)
-- **Visual aids**: Use Miro/FigJam for real-time collaboration, Figma for UI mockups
-- **Propose decisions**: Don't ask open-ended questions; provide structured choices based on best practices
+Estimates use precision tags:
+- **Rough**: ±50%, early assumptions
+- **Medium**: ±30%, after initial analysis
+- **Firm**: ±10%, detailed understanding
+
+### Client Communication Philosophy
+
+- **Avoid technical jargon**: All prompts emphasize "生活者向けの言葉" (everyday language)
+- **Provide options**: Always offer 2-3 alternatives (Plan A/B/C with cost/scope/timeline tradeoffs)
+- **Visual aids**: Prompts recommend Miro/FigJam for collaboration, Figma for UI mockups
+- **Decision proposals**: Don't ask open-ended questions; provide structured choices
 
 ### Document Generation Workflow
 
-1. Conduct interview → Record in meeting minutes template
-2. Use AI prompts to extract: key points, open questions, pain points
-3. Generate business process descriptions (As-Is then To-Be)
-4. Convert to UML diagrams
-5. Compile everything into project plan
-6. Review with client → Iterate based on feedback
+Each prompt file contains:
+1. **目的** (Purpose): What the document achieves
+2. **インプット** (Inputs): Required documents with file paths
+3. **出力指示** (Output instructions): Template to use
+4. **作成ガイドライン** (Creation guidelines): Step-by-step instructions
+5. **チェックリスト** (Checklist): Validation criteria
+
+### Requirements Traceability
+
+Critical path through documents:
+```
+Business Requirements (Phase 1)
+  → Functional Requirements (Phase 2: 機能一覧)
+    → Use Cases (Phase 2: ユースケース)
+      → Screen Design (Phase 3: 画面設計)
+        → Test Cases (Phase 4: テストケース)
+```
+
+## Common Workflows
+
+### Creating a New Project Plan
+```bash
+# Input: Meeting minutes from Week 1-4
+# Use: 01_要求分析/プロンプト/v1/プロジェクト計画書作成プロンプト.md
+# Output: Populated プロジェクト計画書テンプレート.md
+```
+
+### Converting Business Flow to Requirements
+```bash
+# Input: To-Be business flow from Phase 1
+# Use: 02_要件定義/プロンプト/02_機能一覧作成プロンプト.md
+# Output: 02_機能一覧テンプレート.md with features extracted
+```
+
+### Generating Design from Requirements
+```bash
+# Input: 01_要件定義書テンプレート.md (from Phase 2)
+# Use: 03_開発工程/プロンプト/DB設計_プロンプト.md
+# Output: 03_開発工程/テンプレート/DB設計.md
+```
+
+### Creating Test Cases from Design
+```bash
+# Input: Design docs from 03_開発工程/テンプレート/
+# Use: 04_テスト/プロンプト/機能テストケース_プロンプト.md
+# Output: 04_テスト/テンプレート/機能テストケース.md
+```
+
+## File Path Corrections
+
+When updating prompts to reference templates or other documents:
+
+1. **Phase-based paths**: Always use `{phase_number}_{phase_name}/` format
+2. **Template references**: Use `テンプレート/{filename}` within the same phase
+3. **Cross-phase references**: Use full relative path from repository root
+4. **Output destinations**: Match the template location, not a temporary folder
+
+**Incorrect patterns to avoid**:
+- `詳細設計tmp/` (old structure, no longer exists)
+- `testtmp/` (old structure, no longer exists)
+- `/テンプレート/` (flat structure, no longer used)
+- `/プロンプト/` (flat structure, no longer used)
 
 ## Important Notes
 
@@ -150,4 +297,12 @@ Use 2x2 matrix for prioritization:
 - Templates use **markdown format** for easy version control and AI processing
 - UML diagrams support both **PlantUML** (standard UML) and **Mermaid** (GitHub-friendly)
 - Progress tracking emphasizes **quantitative metrics** (%, days, ¥) over qualitative assessments
-- Requirements traceability is critical: maintain links from business requirements → functional requirements → design → test cases
+- File numbering (00_, 01_, etc.) indicates execution order within each phase
+
+## Missing Components (Reference for Future Development)
+
+The following are referenced in documentation but not yet implemented:
+- `06_システム導入後業務フロー整理` prompt and template (Phase 2)
+- `合意事項・未決事項管理表` template (referenced in multiple prompts)
+- `テンプレート準備チェックリスト.md` in `00_docs/`
+- Top-level `/テンプレート/` and `/プロンプト/` directories (replaced by phase-based structure)

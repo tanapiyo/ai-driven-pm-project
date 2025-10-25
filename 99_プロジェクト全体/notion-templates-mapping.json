@@ -1,0 +1,445 @@
+{
+  "description": "Markdownテンプレートファイルから Notion blocks への変換ルール定義",
+  "version": "1.0.0",
+  "templates": {
+    "project-overview": {
+      "type": "static_page",
+      "content_type": "structured",
+      "blocks": [
+        {
+          "type": "heading_1",
+          "content": "案件概要"
+        },
+        {
+          "type": "heading_2",
+          "content": "基本情報"
+        },
+        {
+          "type": "table",
+          "headers": ["項目", "内容"],
+          "rows": [
+            ["顧客名", ""],
+            ["案件名", ""],
+            ["契約形態", ""],
+            ["契約金額", ""],
+            ["契約期間", ""],
+            ["プロジェクト開始日", ""],
+            ["納期", ""],
+            ["PM担当者", ""],
+            ["営業担当者", ""]
+          ]
+        },
+        {
+          "type": "heading_2",
+          "content": "プロジェクト目的"
+        },
+        {
+          "type": "paragraph",
+          "content": "（このプロジェクトで達成したい業務改善目標を記載）"
+        },
+        {
+          "type": "heading_2",
+          "content": "期待される効果"
+        },
+        {
+          "type": "bulleted_list_item",
+          "content": "業務効率化: XX%削減"
+        },
+        {
+          "type": "bulleted_list_item",
+          "content": "コスト削減: 年間XX万円"
+        },
+        {
+          "type": "bulleted_list_item",
+          "content": "その他定性効果"
+        }
+      ]
+    },
+    "meeting-schedule": {
+      "type": "database",
+      "database_type": "table",
+      "properties": {
+        "会議名": {
+          "type": "title"
+        },
+        "日時": {
+          "type": "date"
+        },
+        "参加者": {
+          "type": "multi_select"
+        },
+        "場所": {
+          "type": "select",
+          "options": ["オンライン", "顧客オフィス", "自社オフィス", "その他"]
+        },
+        "URL": {
+          "type": "url"
+        },
+        "ステータス": {
+          "type": "select",
+          "options": ["予定", "完了", "キャンセル"]
+        }
+      }
+    },
+    "team-structure": {
+      "type": "static_page",
+      "content_type": "structured",
+      "blocks": [
+        {
+          "type": "heading_1",
+          "content": "プロジェクト体制図"
+        },
+        {
+          "type": "heading_2",
+          "content": "体制"
+        },
+        {
+          "type": "table",
+          "headers": ["役割", "氏名", "所属", "連絡先", "稼働率"],
+          "rows": [
+            ["PM", "", "", "", ""],
+            ["エンジニア", "", "", "", ""],
+            ["営業", "", "", "", ""],
+            ["顧客側担当者", "", "", "", ""]
+          ]
+        },
+        {
+          "type": "heading_2",
+          "content": "役割と責任"
+        },
+        {
+          "type": "bulleted_list_item",
+          "content": "PM: 全体統括、顧客折衝、進捗管理、リスク管理"
+        },
+        {
+          "type": "bulleted_list_item",
+          "content": "エンジニア: 設計、開発、テスト"
+        },
+        {
+          "type": "bulleted_list_item",
+          "content": "営業: 契約管理、追加提案、エスカレーション対応"
+        }
+      ]
+    },
+    "meeting-minutes-database": {
+      "type": "database",
+      "database_type": "table",
+      "properties": {
+        "会議名": {
+          "type": "title"
+        },
+        "日付": {
+          "type": "date"
+        },
+        "参加者": {
+          "type": "multi_select"
+        },
+        "議題": {
+          "type": "rich_text"
+        },
+        "決定事項": {
+          "type": "rich_text"
+        },
+        "次回アクション": {
+          "type": "rich_text"
+        },
+        "未解決事項": {
+          "type": "rich_text"
+        },
+        "添付資料": {
+          "type": "files"
+        }
+      }
+    },
+    "functional-test-database": {
+      "type": "database",
+      "database_type": "table",
+      "properties": {
+        "テストケースID": {
+          "type": "title"
+        },
+        "機能名": {
+          "type": "select"
+        },
+        "テスト内容": {
+          "type": "rich_text"
+        },
+        "事前条件": {
+          "type": "rich_text"
+        },
+        "操作手順": {
+          "type": "rich_text"
+        },
+        "期待結果": {
+          "type": "rich_text"
+        },
+        "実施日": {
+          "type": "date"
+        },
+        "実施者": {
+          "type": "select"
+        },
+        "結果": {
+          "type": "select",
+          "options": ["未実施", "OK", "NG", "保留"]
+        },
+        "備考": {
+          "type": "rich_text"
+        }
+      }
+    },
+    "non-functional-test-database": {
+      "type": "database",
+      "database_type": "table",
+      "properties": {
+        "テストケースID": {
+          "type": "title"
+        },
+        "カテゴリ": {
+          "type": "select",
+          "options": ["性能", "セキュリティ", "可用性", "保守性", "移植性", "互換性"]
+        },
+        "テスト内容": {
+          "type": "rich_text"
+        },
+        "目標値": {
+          "type": "rich_text"
+        },
+        "実測値": {
+          "type": "rich_text"
+        },
+        "実施日": {
+          "type": "date"
+        },
+        "結果": {
+          "type": "select",
+          "options": ["未実施", "OK", "NG", "保留"]
+        },
+        "備考": {
+          "type": "rich_text"
+        }
+      }
+    },
+    "change-management-database": {
+      "type": "database",
+      "database_type": "table",
+      "properties": {
+        "変更ID": {
+          "type": "title"
+        },
+        "変更内容": {
+          "type": "rich_text"
+        },
+        "申請日": {
+          "type": "date"
+        },
+        "申請者": {
+          "type": "select"
+        },
+        "影響範囲": {
+          "type": "multi_select",
+          "options": ["要件", "設計", "実装", "テスト", "スケジュール", "コスト"]
+        },
+        "優先度": {
+          "type": "select",
+          "options": ["高", "中", "低"]
+        },
+        "ステータス": {
+          "type": "select",
+          "options": ["申請中", "承認", "却下", "保留", "完了"]
+        },
+        "工数影響": {
+          "type": "number"
+        },
+        "コスト影響": {
+          "type": "number"
+        },
+        "対応予定日": {
+          "type": "date"
+        }
+      ]
+    },
+    "risk-management-database": {
+      "type": "database",
+      "database_type": "table",
+      "properties": {
+        "リスクID": {
+          "type": "title"
+        },
+        "リスク内容": {
+          "type": "rich_text"
+        },
+        "カテゴリ": {
+          "type": "select",
+          "options": ["技術", "スケジュール", "要件", "体制", "外部要因"]
+        },
+        "発生確率": {
+          "type": "select",
+          "options": ["高", "中", "低"]
+        },
+        "影響度": {
+          "type": "select",
+          "options": ["大", "中", "小"]
+        },
+        "リスクレベル": {
+          "type": "formula",
+          "formula": "優先度マトリクスで自動計算"
+        },
+        "対応策": {
+          "type": "rich_text"
+        },
+        "担当者": {
+          "type": "select"
+        },
+        "ステータス": {
+          "type": "select",
+          "options": ["監視中", "対応中", "解決済み", "顕在化"]
+        },
+        "最終更新日": {
+          "type": "date"
+        }
+      ]
+    }
+  },
+  "markdown_conversion_rules": {
+    "headings": {
+      "# ": "heading_1",
+      "## ": "heading_2",
+      "### ": "heading_3"
+    },
+    "lists": {
+      "- ": "bulleted_list_item",
+      "* ": "bulleted_list_item",
+      "1. ": "numbered_list_item"
+    },
+    "blocks": {
+      "```": "code",
+      "> ": "quote",
+      "---": "divider"
+    },
+    "special_elements": {
+      "tables": {
+        "markdown_syntax": "| header | header |\n|--------|--------|",
+        "notion_type": "table",
+        "note": "Markdownテーブルを Notion table block に変換"
+      },
+      "plantuml": {
+        "markdown_syntax": "```plantuml",
+        "notion_type": "image",
+        "conversion": "external_render",
+        "note": "PlantUMLコードを画像に変換して埋め込み、またはコードブロックとして保存"
+      },
+      "mermaid": {
+        "markdown_syntax": "```mermaid",
+        "notion_type": "code",
+        "conversion": "code_block",
+        "note": "Notion は Mermaid をネイティブサポートしないため、コードブロックとして保存"
+      },
+      "links": {
+        "internal": {
+          "markdown_syntax": "[text](relative/path.md)",
+          "notion_type": "mention",
+          "conversion": "page_link",
+          "note": "リポジトリ内の相対パスをNotion内部リンクに変換"
+        },
+        "external": {
+          "markdown_syntax": "[text](https://...)",
+          "notion_type": "link",
+          "conversion": "url_link"
+        }
+      }
+    }
+  },
+  "template_file_mappings": {
+    "01_要求分析/テンプレート/プロジェクト計画書テンプレート.md": {
+      "notion_page_title": "プロジェクト計画書",
+      "conversion_strategy": "full_markdown_to_blocks",
+      "preserve_structure": true,
+      "notes": "15章構成をそのまま見出し構造として維持"
+    },
+    "01_要求分析/テンプレート/業務フロー作成テンプレートパック/業務詳細書テンプレート.md": {
+      "notion_page_title": "業務フロー（As-Is/To-Be）",
+      "conversion_strategy": "markdown_with_uml_handling",
+      "uml_handling": "code_block_or_external_image",
+      "notes": "UML図は別途画像化するか、コードブロックとして保存"
+    },
+    "02_要件定義/テンプレート/01_要件定義書テンプレート.md": {
+      "notion_page_title": "要件定義書",
+      "conversion_strategy": "full_markdown_to_blocks",
+      "preserve_structure": true,
+      "notes": "15章構成、機能要件・非機能要件を網羅"
+    },
+    "02_要件定義/テンプレート/07_見積書テンプレート.md": {
+      "notion_page_title": "見積もり",
+      "conversion_strategy": "table_heavy",
+      "special_handling": "formula_preservation",
+      "notes": "コスト計算式を Notion の formula プロパティに変換"
+    },
+    "02_要件定義/テンプレート/08_WBSテンプレート.md": {
+      "notion_page_title": "WBS",
+      "conversion_strategy": "database_preferred",
+      "database_type": "timeline_or_table",
+      "notes": "Notionのタイムラインビューまたはテーブルで管理"
+    },
+    "03_開発工程/テンプレート/API設計.md": {
+      "notion_page_title": "API設計",
+      "conversion_strategy": "markdown_with_code_blocks",
+      "code_language": "json",
+      "notes": "APIスキーマはJSONコードブロックとして保存"
+    },
+    "03_開発工程/テンプレート/DB設計.md": {
+      "notion_page_title": "DB設計",
+      "conversion_strategy": "markdown_with_tables",
+      "notes": "テーブル定義書を Notion table で表現"
+    },
+    "03_開発工程/テンプレート/システム構成図.md": {
+      "notion_page_title": "システム構成図",
+      "conversion_strategy": "image_and_text",
+      "notes": "構成図は画像埋め込み、説明はテキスト"
+    },
+    "03_開発工程/テンプレート/画面設計.md": {
+      "notion_page_title": "画面設計",
+      "conversion_strategy": "embed_heavy",
+      "embed_types": ["figma", "miro"],
+      "notes": "FigmaやMiroの埋め込みリンクを活用"
+    },
+    "04_テスト/テンプレート/テストケース_テンプレート.md": {
+      "notion_page_title": "テストケース",
+      "conversion_strategy": "database_preferred",
+      "database_type": "table",
+      "notes": "テストケースはデータベースで管理"
+    },
+    "04_テスト/テンプレート/検収計画書_テンプレート.md": {
+      "notion_page_title": "検収計画書",
+      "conversion_strategy": "full_markdown_to_blocks",
+      "notes": "受入基準をチェックリスト形式で表現"
+    },
+    "99_プロジェクト全体/質問管理表_テンプレート.md": {
+      "notion_page_title": "質問管理表",
+      "conversion_strategy": "database_only",
+      "database_type": "table",
+      "notes": "質問・回答・ステータスをデータベースで追跡"
+    },
+    "05_進捗報告/テンプレート/週次進捗報告書_テンプレート.md": {
+      "notion_page_title": "週次進捗報告",
+      "conversion_strategy": "database_preferred",
+      "database_type": "table",
+      "notes": "週次レポートを時系列で管理"
+    }
+  },
+  "placeholder_rules": {
+    "project_name": "{{プロジェクト名}}",
+    "client_name": "{{顧客名}}",
+    "contract_amount": "{{契約金額}}",
+    "start_date": "{{開始日}}",
+    "end_date": "{{納期}}",
+    "pm_name": "{{PM名}}",
+    "note": "これらのプレースホルダーはプロジェクト開始時に実際の値に置換される"
+  },
+  "automation_notes": {
+    "static_vs_dynamic": "静的コンテンツ（構造・説明文）は自動生成、動的コンテンツ（プロジェクト固有情報）は空欄またはプレースホルダー",
+    "database_initialization": "データベースはプロパティ定義のみ作成、データ行は空",
+    "image_handling": "UML図や構成図は外部レンダリングサービスまたはローカル変換が必要",
+    "version_control": "Notionページ作成後も、Markdownテンプレートをソースオブソリエティとして保持"
+  }
+}

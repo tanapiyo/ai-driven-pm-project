@@ -1,6 +1,9 @@
 # Ignore work-in-progress directory
 /作業中/
 
+# Ignore generated progress report outputs
+/05_進捗報告/output/
+
 # macOS
 .DS_Store
 .AppleDouble
@@ -36,3 +39,4 @@ Desktop.ini
 *.log
 
 
+/01_要求分析/テンプレート/業務フロー作成テンプレートパック/

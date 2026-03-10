@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+# Contract: dev:stop - Stop development services
+set -euo pipefail
+
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../../.." && pwd)"
+cd "${REPO_ROOT}/projects"
+
+if [[ ! -f "docker-compose.yaml" ]]; then
+  echo "ERROR: docker-compose.yaml not found in projects/"
+  exit 1
+fi
+
+echo "🛑 Stopping development services..."
+
+# Check if docker compose (V2) is available
+if docker compose version &>/dev/null; then
+  COMPOSE_CMD="docker compose"
+else
+  COMPOSE_CMD="docker-compose"
+fi
+
+${COMPOSE_CMD} down
+
+echo "✅ Services stopped."

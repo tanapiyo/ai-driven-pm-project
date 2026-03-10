@@ -1,0 +1,256 @@
+# Worktree Context Schema
+# JSON Schema for .worktree-context.yaml files
+#
+# This schema defines the contract between Orchestrator and Agents
+
+$schema: "http://json-schema.org/draft-07/schema#"
+$id: "worktree-context.schema.yaml"
+title: "Worktree Context"
+description: "Context passed from Orchestrator to Agent in a worktree"
+type: object
+
+required:
+  - task_id
+  - assigned_agent
+  - branch
+  - worktree_path
+
+properties:
+  # === Identification ===
+  task_id:
+    type: string
+    description: "Unique task identifier (e.g., GH-123)"
+    pattern: "^(GH-[0-9]+|[a-z0-9-]+)$"
+    examples:
+      - "GH-123"
+      - "auth-feature"
+
+  parent_agent:
+    type: string
+    description: "Agent that spawned this worktree"
+    enum:
+      - "orchestrator"
+      - "pdm"
+      - "architect"
+      - "designer"
+      - "implementer"
+      - "qa"
+      - "reviewer"
+      - "human"
+    default: "orchestrator"
+
+  assigned_agent:
+    type: string
+    description: "Agent assigned to work in this worktree"
+    enum:
+      - "pdm"
+      - "architect"
+      - "designer"
+      - "implementer"
+      - "qa"
+      - "reviewer"
+
+  # === Git Info ===
+  branch:
+    type: string
+    description: "Git branch name"
+    examples:
+      - "feat/GH-123-auth"
+      - "fix/login-bug"
+
+  worktree_path:
+    type: string
+    description: "Absolute path to worktree directory"
+    examples:
+      - "/home/user/projects/my-repo-feat-auth"
+
+  base_branch:
+    type: string
+    description: "Base branch to merge into"
+    default: "main"
+
+  # === DocDD Context ===
+  context:
+    type: object
+    description: "References to DocDD artifacts"
+    properties:
+      spec:
+        type: string
+        description: "Path to spec.md"
+        examples:
+          - ".specify/specs/auth/spec.md"
+      plan:
+        type: string
+        description: "Path to plan.md"
+        examples:
+          - ".specify/specs/auth/plan.md"
+      adr:
+        type: string
+        description: "Path to ADR document"
+        examples:
+          - "docs/02_architecture/adr/0010_auth.md"
+      ui_requirements:
+        type: string
+        description: "Path to UI requirements"
+        examples:
+          - "docs/01_product/design/ui_requirements.md"
+      test_plan:
+        type: string
+        description: "Path to test plan"
+        examples:
+          - "docs/03_quality/test-plan/auth.md"
+
+  # === Task Definition ===
+  task:
+    type: object
+    description: "Task details for the agent"
+    properties:
+      title:
+        type: string
+        description: "Human-readable task title"
+      description:
+        type: string
+        description: "Detailed task description"
+      original_request:
+        type: string
+        description: "Original human request that triggered this"
+      scope:
+        type: array
+        items:
+          type: string
+        description: "Files or directories in scope"
+        examples:
+          - ["src/auth/", "tests/auth/"]
+
+  # === Success Criteria ===
+  success_criteria:
+    type: array
+    items:
+      type: string
+    description: "Conditions that must be met for task completion"
+    default:
+      - "contract test passes"
+      - "docs updated if needed"
+    examples:
+      - - "contract test passes"
+        - "PR created with AC links"
+        - "No new lint warnings"
+
+  # === Completion Callback ===
+  on_complete:
+    type: object
+    description: "What to do when agent completes"
+    properties:
+      notify:
+        type: string
+        description: "Who to notify on completion"
+        enum:
+          - "orchestrator"
+          - "human"
+          - "none"
+        default: "orchestrator"
+      next_agent:
+        type: string
+        description: "Next agent in workflow (if any)"
+        enum:
+          - "pdm"
+          - "architect"
+          - "designer"
+          - "implementer"
+          - "qa"
+          - "reviewer"
+          - "none"
+      action:
+        type: string
+        description: "Action to take on completion"
+        enum:
+          - "report-status"
+          - "create-pr"
+          - "merge"
+          - "handoff"
+        default: "report-status"
+
+  # === Workflow Info ===
+  workflow:
+    type: object
+    description: "Workflow metadata"
+    properties:
+      type:
+        type: string
+        enum:
+          - "sequential"
+          - "parallel"
+        default: "sequential"
+      step:
+        type: integer
+        description: "Current step in workflow"
+        minimum: 1
+      total_steps:
+        type: integer
+        description: "Total steps in workflow"
+        minimum: 1
+      parallel_group:
+        type: string
+        description: "ID for parallel execution group"
+
+  # === Environment ===
+  environment:
+    type: object
+    description: "Environment configuration"
+    properties:
+      port_base:
+        type: integer
+        description: "Base port for this worktree"
+        minimum: 1024
+        maximum: 65535
+      extra_env:
+        type: object
+        description: "Additional environment variables"
+        additionalProperties:
+          type: string
+
+  # === Auto-generated Metadata ===
+  _spawn_info:
+    type: object
+    description: "Auto-generated by spawn.sh"
+    properties:
+      spawned_at:
+        type: string
+        format: date-time
+      worktree_id:
+        type: integer
+      parent_worktree:
+        type: string
+
+# === Examples ===
+examples:
+  - task_id: "GH-123"
+    parent_agent: "orchestrator"
+    assigned_agent: "implementer"
+    branch: "feat/GH-123-auth"
+    worktree_path: "/home/user/projects/my-repo-feat-auth"
+    base_branch: "main"
+    context:
+      spec: ".specify/specs/auth/spec.md"
+      plan: ".specify/specs/auth/plan.md"
+    task:
+      title: "Implement authentication feature"
+      description: "Add JWT-based authentication with refresh tokens"
+      scope:
+        - "src/auth/"
+        - "tests/auth/"
+    success_criteria:
+      - "contract test passes"
+      - "All AC verified"
+      - "PR created"
+    on_complete:
+      notify: "orchestrator"
+      next_agent: "qa"
+      action: "handoff"
+    workflow:
+      type: "sequential"
+      step: 3
+      total_steps: 5
+    environment:
+      port_base: 3100
+      stack: "node-ts_pnpm"

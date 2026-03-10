@@ -1,0 +1,28 @@
+{
+  "name": "${localWorkspaceFolderBasename}-dev",
+  "dockerComposeFile": ["../docker-compose.worktree.yml"],
+  "service": "dev",
+  "workspaceFolder": "/workspace",
+  "shutdownAction": "none",
+  "initializeCommand": {
+    "init": "bash ${localWorkspaceFolder}/scripts/init-environment.sh",
+    "ai-auth": "bash ${localWorkspaceFolder}/.devcontainer/init-claude-auth.sh"
+  },
+  "postCreateCommand": {
+    "git-and-husky": "git config --global --add safe.directory /workspace && cd /workspace && pnpm install",
+    "deps": "cd /workspace/projects && pnpm install",
+    "db-init": "cd /workspace/projects && pnpm --filter @monorepo/api db:generate && pnpm --filter @monorepo/api db:push && pnpm --filter @monorepo/api db:seed",
+    "playwright": "cd /workspace/projects && npx playwright install chromium",
+    "ai-auth": "bash /workspace/.devcontainer/setup-ai-auth.sh"
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "ms-azuretools.vscode-docker"
+      ]
+    }
+  },
+  "remoteUser": "node"
+}

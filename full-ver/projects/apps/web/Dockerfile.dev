@@ -1,0 +1,45 @@
+# Web サービス (Next.js) の開発用 Dockerfile
+# ビルドコンテキスト: projects/ (モノレポルート)
+# 実行例: docker build -t web-dev -f apps/web/Dockerfile.dev .
+#
+# Next.js Turbopack 開発サーバーによるホットリロード最適化
+
+FROM node:20-slim
+
+# pnpm をインストール
+RUN npm install -g pnpm@9
+
+# ヘルスチェック用に curl をインストール
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+# 依存関係キャッシュ用にワークスペースマニフェストをコピー
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY apps/web/package.json ./apps/web/
+COPY packages/api-contract/package.json ./packages/api-contract/
+
+# 依存関係をインストール
+RUN pnpm install --frozen-lockfile 2>/dev/null || pnpm install
+
+# ルート tsconfig をコピー (apps/web/tsconfig.json が extends している)
+COPY tsconfig.json ./
+
+# ソースコードをコピー (docker-compose ではボリュームマウントで上書きされる)
+COPY apps/web/ ./apps/web/
+COPY packages/ ./packages/
+
+WORKDIR /app/apps/web
+
+# アプリケーションポートを公開
+EXPOSE 3000
+
+# 環境変数 (実行時にオーバーライド可能)
+ENV NODE_ENV=development
+ENV PORT=3000
+ENV HOSTNAME=0.0.0.0
+
+# Turbopack で Next.js を開発モードで起動
+CMD ["pnpm", "run", "dev"]

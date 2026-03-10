@@ -1,0 +1,142 @@
+openapi: 3.0.3
+info:
+  title: Deep Ping API
+  description: |
+    サーバーおよび依存サービス（データベース等）の疎通確認を行う Deep Ping API。
+    単純なヘルスチェック (`/health`) とは異なり、依存サービスの状態も確認する。
+
+    ## ロール別アクセス権限
+
+    | エンドポイント | PLANNER | AGENT | EXEC | ADMIN |
+    |---------------|---------|-------|------|-------|
+    | GET /ping/deep | Public | Public | Public | Public |
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:3001
+    description: Local development server
+
+paths:
+  /ping/deep:
+    get:
+      operationId: getDeepPing
+      summary: Deep Ping
+      description: |
+        サーバーおよび依存サービスの疎通確認を実行する。
+        各チェック項目の状態とレイテンシを返却する。
+      tags:
+        - Health
+      responses:
+        '200':
+          description: Deep Ping の結果
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeepPingResponse'
+              examples:
+                allHealthy:
+                  summary: 全て正常
+                  value:
+                    status: ok
+                    timestamp: '2024-01-01T00:00:00.000Z'
+                    totalLatencyMs: 45
+                    checks:
+                      - name: server
+                        status: ok
+                        latencyMs: 1
+                      - name: database
+                        status: ok
+                        latencyMs: 44
+                        message: Connected to PostgreSQL
+                degraded:
+                  summary: 一部障害
+                  value:
+                    status: degraded
+                    timestamp: '2024-01-01T00:00:00.000Z'
+                    totalLatencyMs: 5003
+                    checks:
+                      - name: server
+                        status: ok
+                        latencyMs: 1
+                      - name: database
+                        status: error
+                        latencyMs: 5002
+                        message: Connection timeout
+        '500':
+          description: サーバーエラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  schemas:
+    DeepPingResponse:
+      type: object
+      required:
+        - status
+        - timestamp
+        - totalLatencyMs
+        - checks
+      properties:
+        status:
+          type: string
+          enum:
+            - ok
+            - degraded
+            - error
+          description: |
+            全体のステータス:
+            - `ok`: 全てのチェックが成功
+            - `degraded`: 一部のチェックが失敗
+            - `error`: 全てのチェックが失敗
+        timestamp:
+          type: string
+          format: date-time
+          description: チェック実行時刻（ISO 8601形式）
+        totalLatencyMs:
+          type: integer
+          minimum: 0
+          description: 全チェックの合計レイテンシ（ミリ秒）
+        checks:
+          type: array
+          items:
+            $ref: '#/components/schemas/HealthCheck'
+          description: 各チェック項目の結果
+
+    HealthCheck:
+      type: object
+      required:
+        - name
+        - status
+        - latencyMs
+      properties:
+        name:
+          type: string
+          description: チェック項目の名前（例: server, database）
+        status:
+          type: string
+          enum:
+            - ok
+            - error
+          description: このチェック項目のステータス
+        latencyMs:
+          type: integer
+          minimum: 0
+          description: このチェックにかかった時間（ミリ秒）
+        message:
+          type: string
+          description: 追加情報（オプション）
+
+    ErrorResponse:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: string
+          description: エラーコード
+        message:
+          type: string
+          description: エラーメッセージ

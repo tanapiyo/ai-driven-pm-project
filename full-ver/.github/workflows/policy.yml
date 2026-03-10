@@ -1,0 +1,79 @@
+name: Policy
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, edited]
+
+# Minimum permissions for security
+permissions:
+  contents: read
+
+jobs:
+  pr-governance:
+    name: PR Governance
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "20"
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # DocDD Policy
+      - name: Check PR contract (DocDD)
+        run: |
+          chmod +x tools/policy/check_pr_contract.sh
+          bash tools/policy/check_pr_contract.sh
+
+      # PR Fields Validation
+      - name: Validate PR fields
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
+          PR_BRANCH: ${{ github.head_ref }}
+        run: |
+          chmod +x tools/policy/check_pr_fields.sh
+          bash tools/policy/check_pr_fields.sh
+
+      # CODEOWNERS Validation
+      - name: Check CODEOWNERS syntax
+        run: |
+          if [ -f .github/CODEOWNERS ]; then
+            echo "CODEOWNERS file exists"
+            # Basic syntax check: no empty owners
+            if grep -E "^[^#].*[[:space:]]+$" .github/CODEOWNERS; then
+              echo "ERROR: CODEOWNERS has lines with missing owners"
+              exit 1
+            fi
+            echo "CODEOWNERS syntax OK"
+          else
+            echo "No CODEOWNERS file found"
+          fi
+
+      # Commitlint (from commitlint.yml)
+      - name: Lint commits
+        run: npx commitlint --from=origin/${{ github.base_ref }} --to=HEAD
+
+      - name: Lint PR title (squash merge)
+        if: github.event_name == 'pull_request'
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+        run: |
+          echo "Checking PR title: $PR_TITLE"
+          echo "$PR_TITLE" | npx commitlint
+
+      # Policy Check (from ci.yml)
+      - name: Check required artifacts
+        run: |
+          chmod +x tools/policy/check_required_artifacts.sh
+          bash tools/policy/check_required_artifacts.sh

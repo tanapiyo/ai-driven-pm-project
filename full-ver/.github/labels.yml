@@ -1,0 +1,123 @@
+# GitHub Labels Definition (SSOT)
+#
+# This file is the Single Source of Truth for GitHub label definitions.
+# Labels are grouped into required and optional groups.
+#
+# Usage:
+#   Apply labels to GitHub using a labels sync tool (e.g., github-label-sync, gh-label-sync)
+#   or via GitHub API.
+#
+# Group rules:
+#   type:*     - REQUIRED, exclusive (exactly 1 per issue)
+#   role:*     - REQUIRED, exclusive (exactly 1 per issue)
+#   priority:* - REQUIRED, exclusive (exactly 1 per issue)
+#   status:*   - OPTIONAL, exclusive (at most 1 per issue)
+#   contrib    - OPTIONAL, non-exclusive (multiple allowed)
+
+# =============================================================================
+# TYPE LABELS — 作業種別（必須、排他的）
+# =============================================================================
+
+- name: "type:feature"
+  color: "A2EEEF"
+  description: "新機能の追加"
+
+- name: "type:bug"
+  color: "D73A4A"
+  description: "バグ修正"
+
+- name: "type:architect"
+  color: "6F42C1"
+  description: "アーキテクチャ・構造変更"
+
+- name: "type:improvement"
+  color: "0075CA"
+  description: "既存機能の改善"
+
+- name: "type:chore"
+  color: "BFD4F2"
+  description: "雑用・メンテナンス・依存更新"
+
+- name: "type:doc"
+  color: "0075CA"
+  description: "ドキュメントの追加・更新"
+
+- name: "type:spike"
+  color: "FEF2C0"
+  description: "調査・技術検証"
+
+- name: "type:epic"
+  color: "3B0A45"
+  description: "Epic（複数 Issue の束）"
+
+# =============================================================================
+# ROLE LABELS — 主担当職種（必須、排他的）
+# =============================================================================
+
+- name: "role:designer"
+  color: "E667AF"
+  description: "デザイナー担当"
+
+- name: "role:frontend"
+  color: "1D76DB"
+  description: "フロントエンド担当"
+
+- name: "role:backend"
+  color: "0E8A16"
+  description: "バックエンド担当"
+
+- name: "role:infra"
+  color: "D4C5F9"
+  description: "インフラ担当"
+
+- name: "role:ops"
+  color: "F9D0C4"
+  description: "オペレーション担当"
+
+# =============================================================================
+# PRIORITY LABELS — 優先度（必須、排他的）
+# =============================================================================
+
+- name: "priority:must"
+  color: "B60205"
+  description: "必須（Must）— ブロッカー・今スプリント内に完了必須"
+
+- name: "priority:nice"
+  color: "D93F0B"
+  description: "Nice to Have — 今スプリント希望・できれば対応"
+
+- name: "priority:medium"
+  color: "FBCA04"
+  description: "中優先度 — バックログ上位・次スプリント候補"
+
+- name: "priority:low"
+  color: "C2E0C6"
+  description: "低優先度 — バックログ下位・いつか対応"
+
+# =============================================================================
+# STATUS LABELS — 特殊ステータス（オプション、排他的）
+# =============================================================================
+
+- name: "status:duplicate"
+  color: "CFD3D7"
+  description: "重複 Issue"
+
+- name: "status:invalid"
+  color: "E4E669"
+  description: "無効な Issue"
+
+- name: "status:wontfix"
+  color: "FFFFFF"
+  description: "対応しないと決定した Issue"
+
+# =============================================================================
+# CONTRIB LABELS — コントリビューション促進（オプション、非排他的）
+# =============================================================================
+
+- name: "good first issue"
+  color: "7057FF"
+  description: "初心者向け（GitHub 標準）"
+
+- name: "help wanted"
+  color: "008672"
+  description: "ヘルプ募集（GitHub 標準）"

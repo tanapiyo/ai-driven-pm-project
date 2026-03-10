@@ -1,0 +1,300 @@
+openapi: 3.0.3
+info:
+  title: Auth API
+  description: |
+    認証に関する API エンドポイント。
+    ログイン、ログアウト、トークンリフレッシュ、
+    現在のユーザー情報取得を提供する。
+
+    ## ロール別アクセス権限
+
+    | エンドポイント | USER | ADMIN |
+    |---------------|------|-------|
+    | POST /auth/login | Public | Public |
+    | POST /auth/logout | ✓ | ✓ |
+    | POST /auth/refresh | Public | Public |
+    | GET /auth/me | ✓ | ✓ |
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:3001
+    description: Local development server
+
+paths:
+  /auth/login:
+    post:
+      operationId: login
+      summary: User Login
+      description: |
+        メールアドレスとパスワードで認証し、JWTトークンペアを発行する。
+      tags:
+        - Auth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+            examples:
+              normal:
+                summary: 通常のリクエスト
+                value:
+                  email: "user@example.com"
+                  password: "SecurePass123"
+      responses:
+        '200':
+          description: ログイン成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '401':
+          description: 認証失敗
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                invalidCredentials:
+                  summary: 認証情報が不正
+                  value:
+                    code: "INVALID_CREDENTIALS"
+                    message: "Invalid email or password"
+
+  /auth/logout:
+    post:
+      operationId: logout
+      summary: User Logout
+      description: |
+        現在のリフレッシュトークンを無効化してログアウトする。
+      tags:
+        - Auth
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LogoutRequest'
+      responses:
+        '204':
+          description: ログアウト成功
+        '401':
+          description: 認証エラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /auth/refresh:
+    post:
+      operationId: refreshToken
+      summary: Refresh Token
+      description: |
+        リフレッシュトークンを使用して新しいトークンペアを取得する。
+        トークンローテーションを行い、古いリフレッシュトークンは無効化される。
+      tags:
+        - Auth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshRequest'
+      responses:
+        '200':
+          description: トークンリフレッシュ成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '401':
+          description: リフレッシュトークンが無効
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                invalidToken:
+                  summary: トークンが無効
+                  value:
+                    code: "INVALID_TOKEN"
+                    message: "Invalid or expired refresh token"
+
+  /auth/me:
+    get:
+      operationId: getCurrentUser
+      summary: Get Current User
+      description: |
+        認証済みユーザーの情報を取得する。
+        name と role フィールドを含む。
+      tags:
+        - Auth
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: ユーザー情報取得成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CurrentUserResponse'
+              examples:
+                user:
+                  summary: User
+                  value:
+                    id: "550e8400-e29b-41d4-a716-446655440000"
+                    email: "user@example.com"
+                    name: "田中 花子"
+                    role: "user"
+                    createdAt: "2024-01-01T00:00:00.000Z"
+                    updatedAt: "2024-01-15T12:00:00.000Z"
+                admin:
+                  summary: Admin ユーザー
+                  value:
+                    id: "660e8400-e29b-41d4-a716-446655440001"
+                    email: "admin@example.com"
+                    name: "管理者"
+                    role: "admin"
+                    createdAt: "2024-01-01T00:00:00.000Z"
+                    updatedAt: "2024-01-15T12:00:00.000Z"
+        '401':
+          description: 認証エラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                unauthorized:
+                  summary: 未認証
+                  value:
+                    code: "UNAUTHORIZED"
+                    message: "Authentication required"
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT アクセストークン
+
+  schemas:
+    LoginRequest:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+          description: メールアドレス
+          example: "user@example.com"
+        password:
+          type: string
+          description: パスワード
+          example: "SecurePass123"
+
+    LogoutRequest:
+      type: object
+      required:
+        - refreshToken
+      properties:
+        refreshToken:
+          type: string
+          description: 無効化するリフレッシュトークン
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+
+    RefreshRequest:
+      type: object
+      required:
+        - refreshToken
+      properties:
+        refreshToken:
+          type: string
+          description: リフレッシュトークン
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+
+    AuthResponse:
+      type: object
+      required:
+        - accessToken
+        - refreshToken
+        - expiresIn
+      properties:
+        accessToken:
+          type: string
+          description: JWT アクセストークン（有効期限: 15分）
+          example: "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9..."
+        refreshToken:
+          type: string
+          description: リフレッシュトークン（有効期限: 7日）
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+        expiresIn:
+          type: integer
+          description: アクセストークンの有効期限（秒）
+          example: 900
+
+    UserRole:
+      type: string
+      enum:
+        - admin
+        - user
+      description: |
+        ユーザーロール:
+        - admin: システム管理
+        - user: 一般ユーザー
+
+    CurrentUserResponse:
+      type: object
+      required:
+        - id
+        - email
+        - name
+        - role
+        - createdAt
+        - updatedAt
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: ユーザーID
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        email:
+          type: string
+          format: email
+          description: メールアドレス
+          example: "user@example.com"
+        name:
+          type: string
+          description: ユーザー名
+          example: "田中 花子"
+        role:
+          $ref: '#/components/schemas/UserRole'
+        createdAt:
+          type: string
+          format: date-time
+          description: アカウント作成日時
+          example: "2024-01-01T00:00:00.000Z"
+        updatedAt:
+          type: string
+          format: date-time
+          description: 最終更新日時
+          example: "2024-01-15T12:00:00.000Z"
+
+    ErrorResponse:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: string
+          description: エラーコード
+          example: "VALIDATION_ERROR"
+        message:
+          type: string
+          description: エラーメッセージ
+          example: "Invalid input"

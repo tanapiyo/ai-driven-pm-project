@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+# Wrapper script for Golden Commands
+# Delegates to tools/_contract/contract
+exec "$(dirname "${BASH_SOURCE[0]}")/_contract/contract" "$@"

@@ -1,0 +1,51 @@
+#!/usr/bin/env bash
+# tools/_contract/stack/db:setup
+# One-command DB setup for new developers: generate client, migrate, seed
+#
+# Usage:
+#   ./tools/contract db:setup
+#
+# What this does:
+#   1. Generate Prisma client
+#   2. Run all pending migrations (prisma migrate deploy)
+#   3. Seed initial data
+#
+# Prerequisites:
+#   - DATABASE_URL environment variable must be set (auto-set in DevContainer)
+#   - PostgreSQL must be running (start with ./tools/contract up or ./tools/contract dev)
+#
+# See also: docs/05_development/database_setup.md
+
+set -euo pipefail
+
+REPO_ROOT="${REPO_ROOT:-$(git rev-parse --show-toplevel 2>/dev/null || pwd)}"
+cd "${REPO_ROOT}/projects"
+
+echo "=== DB Setup: Starting one-command database initialization ==="
+
+# Step 1: Generate Prisma client
+echo ""
+echo "Step 1/3: Generating Prisma client..."
+pnpm --filter @monorepo/api db:generate
+echo "Prisma client generated."
+
+# Step 2: Run migrations
+echo ""
+echo "Step 2/3: Running database migrations..."
+pnpm --filter @monorepo/api exec prisma migrate deploy
+echo "Migrations applied."
+
+# Step 3: Seed initial data
+echo ""
+echo "Step 3/3: Seeding initial data..."
+pnpm --filter @monorepo/api db:seed
+echo "Seed data inserted."
+
+echo ""
+echo "=== DB Setup: Complete ==="
+echo ""
+echo "Database is ready. Default credentials:"
+echo "  Admin email:    admin@example.com"
+echo "  Admin password: Admin1234"
+echo ""
+echo "Run ./tools/contract seed-integrity-check to verify seed data integrity."

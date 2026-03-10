@@ -1,0 +1,50 @@
+# API サービス (Express 5.x) の開発用 Dockerfile
+# ビルドコンテキスト: projects/ (モノレポルート)
+# 実行例: docker build -t api-dev -f apps/api/Dockerfile.dev .
+#
+# エントリーポイント: src/presentation/express/server.ts
+# tsx watch によるホットリロード + デバッグポート対応
+
+FROM node:20-slim
+
+# pnpm をインストール
+RUN npm install -g pnpm@9
+
+# ヘルスチェック・デバッグ用に curl、Prisma 用に openssl をインストール
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl openssl \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+# 依存関係キャッシュ用にワークスペースマニフェストをコピー
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY apps/api/package.json ./apps/api/
+COPY packages/api-contract/package.json ./packages/api-contract/
+COPY packages/shared/package.json ./packages/shared/
+
+# 依存関係をインストール
+RUN pnpm install --frozen-lockfile 2>/dev/null || pnpm install
+
+# ルート tsconfig をコピー (apps/api/tsconfig.json が extends している)
+COPY tsconfig.json ./
+
+# ソースコードをコピー (docker-compose ではボリュームマウントで上書きされる)
+COPY apps/api/ ./apps/api/
+COPY packages/ ./packages/
+
+WORKDIR /app/apps/api
+
+# Prisma クライアントを生成
+RUN pnpm exec prisma generate --schema=./prisma/schema.prisma 2>/dev/null || true
+
+# アプリケーションポートとデバッグポートを公開
+EXPOSE 8080
+EXPOSE 9229
+
+# 環境変数 (実行時にオーバーライド可能)
+ENV NODE_ENV=development
+ENV PORT=8080
+
+# Express サーバーを tsx watch で起動 (ADR-0013: Express エントリーポイント)
+CMD ["pnpm", "exec", "tsx", "watch", "src/presentation/express/server.ts"]

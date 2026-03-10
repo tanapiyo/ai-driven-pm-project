@@ -1,0 +1,11 @@
+# Docker Compose Override for Local Development
+# This file is gitignored and used for local customizations
+# Copy from docker-compose.override.yaml.example if needed
+
+# Example overrides:
+# services:
+#   api:
+#     environment:
+#       - API_KEY=your-local-key
+#     ports:
+#       - "3001:3000"  # Different local port

@@ -1,0 +1,28 @@
+{
+  "name": "@monorepo/eslint-config",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "description": "Shared ESLint configuration for the monorepo",
+  "main": "index.js",
+  "exports": {
+    ".": "./index.js",
+    "./fsd": "./fsd.js",
+    "./legacy": "./index.cjs",
+    "./legacy/fsd": "./fsd.cjs"
+  },
+  "files": [
+    "*.js",
+    "*.cjs"
+  ],
+  "dependencies": {
+    "@eslint/js": "^9.39.3",
+    "@typescript-eslint/eslint-plugin": "^8.56.1",
+    "@typescript-eslint/parser": "^8.56.1",
+    "eslint-plugin-boundaries": "^5.4.0",
+    "typescript-eslint": "^8.56.1"
+  },
+  "peerDependencies": {
+    "eslint": "^9.0.0"
+  }
+}

@@ -1,0 +1,219 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "_comment": "Layer B (Defense): Security guardrails - DO NOT MODIFY deny rules without security review",
+  "_rules_comment": "Rules in .claude/rules/ are always auto-applied (01-core, 02-backend, 03-frontend, 04-security, 05-quality)",
+
+  "permissions": {
+    "allow": [
+      "// === Golden Commands (via contract wrapper) ===",
+      "Bash(./tools/contract lint:*)",
+      "Bash(./tools/contract typecheck:*)",
+      "Bash(./tools/contract test:*)",
+      "Bash(./tools/contract build:*)",
+      "Bash(./tools/contract format:*)",
+      "Bash(./tools/contract guardrail:*)",
+      "Bash(./tools/contract e2e:*)",
+
+      "// === Safe Git Read-Only Commands ===",
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git branch:*)",
+      "Bash(git show:*)",
+      "Bash(git rev-parse:*)",
+      "Bash(git worktree list:*)",
+
+      "// === Dependency Audit (via contract wrapper) ===",
+      "Bash(./tools/contract audit:*)",
+      "Bash(./tools/contract outdated:*)",
+
+      "// === Dependency Audit (raw - allowed exception for backwards compat) ===",
+      "Bash(pnpm audit:*)",
+      "Bash(pnpm outdated:*)",
+      "Bash(npm audit:*)",
+      "Bash(npm outdated:*)"
+    ],
+    "deny": [
+      "// ============================================================",
+      "// LAYER B: DEFENSE GUARDRAILS - DO NOT MODIFY",
+      "// These rules protect against accidental or malicious actions",
+      "// ============================================================",
+
+      "// === Secrets & Credentials (File Read) ===",
+      "Read(**/.env)",
+      "Read(**/.env.*)",
+      "Read(**/.env.local)",
+      "Read(**/.env.development)",
+      "Read(**/.env.production)",
+      "Read(**/.env.test)",
+      "Read(**/secrets/**)",
+      "Read(**/*.pem)",
+      "Read(**/*.key)",
+      "Read(**/*.p12)",
+      "Read(**/*.pfx)",
+      "Read(**/*.jks)",
+      "Read(**/credentials*)",
+      "Read(**/*secret*)",
+      "Read(**/*credential*)",
+      "Read(**/.npmrc)",
+      "Read(**/.pypirc)",
+      "Read(**/.netrc)",
+      "Read(**/.aws/credentials)",
+      "Read(**/.ssh/*)",
+      "Read(**/.gnupg/*)",
+
+      "// === Secrets & Credentials (File Edit) ===",
+      "Edit(**/.env)",
+      "Edit(**/.env.*)",
+      "Edit(**/.env.local)",
+      "Edit(**/.env.development)",
+      "Edit(**/.env.production)",
+      "Edit(**/secrets/**)",
+      "Edit(**/*.pem)",
+      "Edit(**/*.key)",
+
+      "// === Secrets & Credentials (File Write) ===",
+      "Write(**/.env)",
+      "Write(**/.env.*)",
+      "Write(**/.env.local)",
+      "Write(**/.env.development)",
+      "Write(**/.env.production)",
+      "Write(**/secrets/**)",
+      "Write(**/*.pem)",
+      "Write(**/*.key)",
+      "Write(**/.npmrc)",
+      "Write(**/.pypirc)",
+      "Write(**/.netrc)",
+
+      "// === Destructive Shell Commands ===",
+      "Bash(rm -rf /*)",
+      "Bash(rm -rf ~/*)",
+      "Bash(rm -rf ./*)",
+      "Bash(rm -rf ../*)",
+      "Bash(rm -rf $HOME/*)",
+      "Bash(rm -rf $PWD/*)",
+      "Bash(sudo *)",
+      "Bash(su *)",
+      "Bash(doas *)",
+      "Bash(pkexec *)",
+      "Bash(chmod 777 *)",
+      "Bash(chmod -R 777 *)",
+
+      "// === Remote Code Execution / Supply Chain ===",
+      "Bash(curl * | bash*)",
+      "Bash(curl * | sh*)",
+      "Bash(curl * | zsh*)",
+      "Bash(wget * | bash*)",
+      "Bash(wget * | sh*)",
+      "Bash(wget * | zsh*)",
+      "Bash(curl * | python*)",
+      "Bash(wget * | python*)",
+      "Bash(curl * | node*)",
+      "Bash(wget * | node*)",
+      "Bash(eval *)",
+      "Bash(source *curl*)",
+      "Bash(bash -c *curl*)",
+      "Bash(npm install -g *://)",
+      "Bash(pip install *://)",
+
+      "// === Secrets Exfiltration via Shell ===",
+      "Bash(cat */.env*)",
+      "Bash(cat */secrets/*)",
+      "Bash(less */.env*)",
+      "Bash(more */.env*)",
+      "Bash(head */.env*)",
+      "Bash(tail */.env*)",
+      "Bash(echo $*_KEY*)",
+      "Bash(echo $*_SECRET*)",
+      "Bash(echo $*_TOKEN*)",
+      "Bash(echo $*_PASSWORD*)",
+      "Bash(echo $*_API_KEY*)",
+      "Bash(echo $*_CREDENTIAL*)",
+      "Bash(echo $*_PRIVATE*)",
+      "Bash(echo $AWS_*)",
+      "Bash(echo $GH_TOKEN*)",
+      "Bash(echo $GITHUB_TOKEN*)",
+      "Bash(printenv *KEY*)",
+      "Bash(printenv *SECRET*)",
+      "Bash(printenv *TOKEN*)",
+      "Bash(printenv *PASSWORD*)",
+      "Bash(export *=* > *)",
+      "Bash(env > *)",
+      "Bash(set > *)",
+
+      "// === Generated Code (DO NOT EDIT - use ./tools/contract openapi-generate) ===",
+      "Edit(**/generated/**)",
+      "Write(**/generated/**)",
+
+      "// === Git Dangerous Operations ===",
+      "Bash(git push --force*)",
+      "Bash(git push -f*)",
+      "Bash(git push origin --force*)",
+      "Bash(git push origin -f*)",
+      "Bash(git push --force-with-lease*)",
+      "Bash(git reset --hard HEAD~*)",
+      "Bash(git reset --hard origin/*)",
+      "Bash(git clean -fdx*)",
+      "Bash(git checkout main)",
+      "Bash(git checkout master)",
+      "Bash(git switch main)",
+      "Bash(git switch master)",
+      "Bash(git push * main)",
+      "Bash(git push * master)",
+      "Bash(git push origin main)",
+      "Bash(git push origin master)",
+
+      "// === Network Exfiltration ===",
+      "Bash(nc * *)",
+      "Bash(netcat * *)",
+      "Bash(ncat * *)",
+      "Bash(curl -X POST * -d *@*)",
+      "Bash(curl --data-binary @* *)",
+      "Bash(rsync * *@*:*)",
+      "Bash(scp * *@*:*)",
+
+      "// === Process Manipulation ===",
+      "Bash(kill -9 *)",
+      "Bash(killall *)",
+      "Bash(pkill *)",
+      "Bash(nohup *)"
+    ]
+  },
+
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/pre-bash.sh",
+            "timeout": 5
+          }
+        ]
+      },
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/pre-edit.sh",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/post-edit.sh",
+            "timeout": 30
+          }
+        ]
+      }
+    ]
+  }
+}

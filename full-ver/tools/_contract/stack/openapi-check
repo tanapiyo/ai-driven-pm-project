@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+#
+# OpenAPI 生成物が最新かチェック
+# 差分があれば失敗
+#
+set -euo pipefail
+REPO_ROOT="${REPO_ROOT:-$(git rev-parse --show-toplevel 2>/dev/null || pwd)}"
+PROJECTS_DIR="${REPO_ROOT}/projects"
+
+if [[ -d "${PROJECTS_DIR}" ]] && [[ -f "${PROJECTS_DIR}/package.json" ]]; then
+  cd "${PROJECTS_DIR}"
+else
+  cd "${REPO_ROOT}"
+fi
+
+pnpm openapi:check

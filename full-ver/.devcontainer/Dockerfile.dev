@@ -1,0 +1,64 @@
+FROM node:25-bookworm
+
+RUN apt-get update && apt-get install -y \
+    git curl wget jq vim \
+    unzip \
+    gnupg \
+    lsb-release \
+    ca-certificates \
+    # Chromium for Puppeteer PDF generation (native architecture)
+    chromium \
+    # Japanese fonts for PDF generation
+    fonts-noto-cjk \
+    # Chromium dependencies
+    libnss3 libnspr4 libdbus-1-3 libatk1.0-0 libatk-bridge2.0-0 \
+    libcups2 libdrm2 libxkbcommon0 libatspi2.0-0 libxcomposite1 \
+    libxdamage1 libxfixes3 libxrandr2 libgbm1 libasound2 \
+    && rm -rf /var/lib/apt/lists/*
+
+# ==============================================================================
+# Terraform CLI
+# https://developer.hashicorp.com/terraform/install
+# ==============================================================================
+ARG TERRAFORM_VERSION=1.11.2
+RUN ARCH=$(dpkg --print-architecture) && \
+    wget -q "https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_${ARCH}.zip" \
+         -O /tmp/terraform.zip && \
+    unzip -q /tmp/terraform.zip -d /usr/local/bin && \
+    rm /tmp/terraform.zip && \
+    terraform --version
+
+# ==============================================================================
+# AWS CLI v2
+# https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2-linux.html
+# ==============================================================================
+RUN ARCH=$(uname -m) && \
+    if [ "$ARCH" = "x86_64" ]; then AWS_ARCH="x86_64"; \
+    elif [ "$ARCH" = "aarch64" ]; then AWS_ARCH="aarch64"; \
+    else echo "Unsupported architecture: $ARCH" && exit 1; fi && \
+    wget -q "https://awscli.amazonaws.com/awscli-exe-linux-${AWS_ARCH}.zip" \
+         -O /tmp/awscliv2.zip && \
+    unzip -q /tmp/awscliv2.zip -d /tmp && \
+    /tmp/aws/install && \
+    rm -rf /tmp/awscliv2.zip /tmp/aws && \
+    aws --version
+
+# Configure Puppeteer to use system Chromium instead of downloading
+ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
+ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
+
+# pnpm setup (corepack removed from Node.js 25+)
+ENV PNPM_HOME="/home/node/.local/share/pnpm"
+ENV PATH="$PNPM_HOME:$PATH"
+# Disable Corepack download prompt for non-interactive use
+ENV COREPACK_ENABLE_DOWNLOAD_PROMPT=0
+
+# Install corepack and prepare pnpm as root first
+RUN npm install -g --force corepack && corepack enable
+
+# Switch to node user and prepare pnpm in user context
+USER node
+RUN corepack prepare pnpm@9.15.0 --activate
+
+WORKDIR /workspace
+CMD ["sleep", "infinity"]

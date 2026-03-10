@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+#
+# OpenAPI からフロントエンド (orval: TypeScript types + React Query hooks) を生成
+#
+set -euo pipefail
+REPO_ROOT="${REPO_ROOT:-$(git rev-parse --show-toplevel 2>/dev/null || pwd)}"
+PROJECTS_DIR="${REPO_ROOT}/projects"
+
+if [[ -d "${PROJECTS_DIR}" ]] && [[ -f "${PROJECTS_DIR}/package.json" ]]; then
+  cd "${PROJECTS_DIR}"
+else
+  cd "${REPO_ROOT}"
+fi
+
+pnpm openapi:generate:frontend

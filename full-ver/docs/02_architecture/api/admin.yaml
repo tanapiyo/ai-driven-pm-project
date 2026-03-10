@@ -1,0 +1,224 @@
+openapi: 3.0.3
+info:
+  title: Admin API
+  description: |
+    Admin-only endpoints for system management.
+    All endpoints require admin role authentication.
+
+    ## ロール別アクセス権限
+
+    | エンドポイント | USER | ADMIN |
+    |---------------|------|-------|
+    | GET /admin/audit-logs | - | ✓ |
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:3001
+    description: Local development server
+
+paths:
+  /admin/audit-logs:
+    get:
+      operationId: listAuditLogs
+      summary: List Audit Logs
+      description: |
+        Returns a paginated list of audit logs.
+        Admin role required.
+      tags:
+        - Admin
+        - AuditLog
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          description: Page number (1-indexed)
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: limit
+          in: query
+          description: Number of items per page
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+        - name: actorId
+          in: query
+          description: Filter by actor (user who performed the action)
+          schema:
+            type: string
+            format: uuid
+        - name: entityType
+          in: query
+          description: Filter by entity type
+          schema:
+            type: string
+            enum:
+              - User
+              - Authorization
+        - name: action
+          in: query
+          description: Filter by action type
+          schema:
+            type: string
+            enum:
+              - create
+              - update
+              - delete
+              - authorization_denied
+        - name: startDate
+          in: query
+          description: Filter logs from this date (inclusive)
+          schema:
+            type: string
+            format: date-time
+        - name: endDate
+          in: query
+          description: Filter logs until this date (inclusive)
+          schema:
+            type: string
+            format: date-time
+      responses:
+        '200':
+          description: Audit logs retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuditLogListResponse'
+        '400':
+          description: Invalid request parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - Authentication required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - Admin role required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    AuditLogListResponse:
+      type: object
+      required:
+        - data
+        - pagination
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/AuditLog'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+
+    AuditLog:
+      type: object
+      required:
+        - id
+        - actorId
+        - actorName
+        - entityType
+        - entityId
+        - action
+        - timestamp
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier for the audit log entry
+        actorId:
+          type: string
+          format: uuid
+          description: ID of the user who performed the action
+        actorName:
+          type: string
+          description: Name of the user who performed the action
+        entityType:
+          type: string
+          enum:
+            - User
+            - Authorization
+          description: Type of entity that was affected
+        entityId:
+          type: string
+          format: uuid
+          description: ID of the entity that was affected
+        action:
+          type: string
+          enum:
+            - create
+            - update
+            - delete
+            - authorization_denied
+          description: Type of action performed
+        changes:
+          type: object
+          nullable: true
+          description: JSON object containing before/after state for updates
+          properties:
+            before:
+              type: object
+              additionalProperties: true
+            after:
+              type: object
+              additionalProperties: true
+        metadata:
+          type: object
+          nullable: true
+          additionalProperties: true
+          description: Additional context about the action
+        timestamp:
+          type: string
+          format: date-time
+          description: When the action occurred
+
+    Pagination:
+      type: object
+      required:
+        - page
+        - limit
+        - total
+        - totalPages
+      properties:
+        page:
+          type: integer
+          description: Current page number
+        limit:
+          type: integer
+          description: Items per page
+        total:
+          type: integer
+          description: Total number of items
+        totalPages:
+          type: integer
+          description: Total number of pages
+
+    ErrorResponse:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: string
+          description: Error code
+        message:
+          type: string
+          description: Human-readable error message

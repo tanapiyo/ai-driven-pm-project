@@ -1,0 +1,281 @@
+#!/usr/bin/env bash
+# Contract: e2e - Run E2E tests via the Playwright container
+#
+# Usage:
+#   ./tools/contract e2e [options]
+#
+# Options:
+#   --scope <smoke|affected|full>  Test scope (default: smoke)
+#   --file  <path>                 Specific test file path
+#   --project <name>               Specific Playwright project/role (e.g. chromium:planner)
+#   --help                         Show this help
+#
+# Scope semantics:
+#   smoke    - golden-route only (fast P0 gate)
+#   affected - tests in files touched by current git diff (fallback to smoke if none detected)
+#   full     - all E2E tests
+#
+# Artifacts are written to named Docker volumes and their paths are printed after the run.
+#
+# Prerequisites:
+#   Services (web, api, playwright) must be running.
+#   Start with: ./tools/contract up
+
+set -euo pipefail
+
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
+cd "${REPO_ROOT}"
+
+# SAFETY CHECK: Prevent running from root repository
+if [[ -d .git ]]; then
+    echo "ERROR: You are running 'contract e2e' from the root repository."
+    echo ""
+    echo "   This command MUST be run from a worktree directory."
+    echo "   Start a worktree: ./tools/worktree/spawn.sh implementer <branch-name>"
+    echo ""
+    exit 1
+fi
+
+# ── Argument parsing ────────────────────────────────────────────────────────
+
+SCOPE="smoke"
+FILE_ARG=""
+PROJECT_ARG=""
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --scope)
+      SCOPE="${2:?'--scope requires a value: smoke|affected|full'}"
+      shift 2
+      ;;
+    --file)
+      FILE_ARG="${2:?'--file requires a path'}"
+      shift 2
+      ;;
+    --project)
+      PROJECT_ARG="${2:?'--project requires a name'}"
+      shift 2
+      ;;
+    --help|-h)
+      sed -n '2,/^set /p' "$0" | grep '^#' | sed 's/^# \?//'
+      exit 0
+      ;;
+    *)
+      echo "ERROR: Unknown option: $1"
+      echo "Usage: ./tools/contract e2e [--scope smoke|affected|full] [--file <path>] [--project <name>]"
+      exit 2
+      ;;
+  esac
+done
+
+# Validate --scope value
+case "${SCOPE}" in
+  smoke|affected|full) ;;
+  *)
+    echo "ERROR: --scope must be one of: smoke, affected, full (got: '${SCOPE}')"
+    exit 2
+    ;;
+esac
+
+# ── Environment setup ────────────────────────────────────────────────────────
+
+# Load .env for CONTAINER_NAME and COMPOSE_PROJECT_NAME
+if [[ -f .env ]]; then
+  # shellcheck source=/dev/null
+  source .env
+fi
+
+WORKTREE="$(basename "$(pwd)")"
+COMPOSE_PROJECT_NAME="${COMPOSE_PROJECT_NAME:-${WORKTREE}}"
+CONTAINER_NAME="${CONTAINER_NAME:-${WORKTREE}}"
+
+PLAYWRIGHT_CONTAINER="${CONTAINER_NAME}-playwright"
+WEB_CONTAINER="${CONTAINER_NAME}-web"
+API_CONTAINER="${CONTAINER_NAME}-api"
+
+if docker compose version &>/dev/null; then
+  COMPOSE_CMD="docker compose"
+else
+  COMPOSE_CMD="docker-compose"
+fi
+
+# ── Service health check ─────────────────────────────────────────────────────
+
+check_service_health() {
+  local container="$1"
+  local status
+  status="$(docker inspect --format='{{.State.Health.Status}}' "${container}" 2>/dev/null || echo "not_running")"
+  [[ "${status}" == "healthy" ]]
+}
+
+service_is_running() {
+  local container="$1"
+  # Use -F (fixed string) and -x (whole line) to avoid regex interpretation of container name
+  docker ps --format '{{.Names}}' 2>/dev/null | grep -Fxq "${container}"
+}
+
+echo "Checking service health..."
+
+# Check that the environment is up
+if ! service_is_running "${PLAYWRIGHT_CONTAINER}"; then
+  echo ""
+  echo "ERROR: Playwright container '${PLAYWRIGHT_CONTAINER}' is not running."
+  echo ""
+  echo "Start the environment first:"
+  echo "  ./tools/contract up"
+  echo ""
+  exit 1
+fi
+
+if ! service_is_running "${WEB_CONTAINER}"; then
+  echo ""
+  echo "ERROR: Web container '${WEB_CONTAINER}' is not running."
+  echo ""
+  echo "Start the environment first:"
+  echo "  ./tools/contract up"
+  echo ""
+  exit 1
+fi
+
+if ! service_is_running "${API_CONTAINER}"; then
+  echo ""
+  echo "ERROR: API container '${API_CONTAINER}' is not running."
+  echo ""
+  echo "Start the environment first:"
+  echo "  ./tools/contract up"
+  echo ""
+  exit 1
+fi
+
+# Wait for web and api to be healthy (may still be starting)
+echo "Waiting for web service to be healthy..."
+MAX_WAIT=120
+WAITED=0
+while ! check_service_health "${WEB_CONTAINER}"; do
+  if [[ ${WAITED} -ge ${MAX_WAIT} ]]; then
+    echo "ERROR: Web service did not become healthy within ${MAX_WAIT}s."
+    echo "Check logs with: ./tools/contract up:logs web"
+    exit 1
+  fi
+  sleep 3
+  WAITED=$((WAITED + 3))
+done
+echo "  web: healthy"
+
+echo "Waiting for api service to be healthy..."
+WAITED=0
+while ! check_service_health "${API_CONTAINER}"; do
+  if [[ ${WAITED} -ge ${MAX_WAIT} ]]; then
+    echo "ERROR: API service did not become healthy within ${MAX_WAIT}s."
+    echo "Check logs with: ./tools/contract up:logs api"
+    exit 1
+  fi
+  sleep 3
+  WAITED=$((WAITED + 3))
+done
+echo "  api: healthy"
+
+# ── Resolve Playwright arguments from scope/file/project ────────────────────
+
+# E2E source directory inside the container
+E2E_DIR="e2e"
+SMOKE_PATTERN="${E2E_DIR}/flows/golden-route.spec.ts"
+
+# Build PLAYWRIGHT_ARGS array directly (avoids subshell word-splitting issues)
+PLAYWRIGHT_ARGS=()
+
+# --file takes highest priority (explicit test selection)
+if [[ -n "${FILE_ARG}" ]]; then
+  # Convert host path to container path if it starts with REPO_ROOT
+  CONTAINER_FILE_PATH="${FILE_ARG}"
+  if [[ "${FILE_ARG}" == "${REPO_ROOT}"* ]]; then
+    # Map host workspace path to /workspace inside container
+    CONTAINER_FILE_PATH="/workspace${FILE_ARG#${REPO_ROOT}}"
+  fi
+  PLAYWRIGHT_ARGS+=("${CONTAINER_FILE_PATH}")
+
+else
+  # Apply scope-based selection
+  case "${SCOPE}" in
+    smoke)
+      PLAYWRIGHT_ARGS+=("${SMOKE_PATTERN}")
+      ;;
+
+    affected)
+      # Collect E2E spec files touched by current git diff (staged + unstaged)
+      while IFS= read -r changed_line; do
+        if [[ "${changed_line}" =~ \.spec\.ts$ ]] && [[ "${changed_line}" == *"e2e/"* ]]; then
+          PLAYWRIGHT_ARGS+=("/workspace/${changed_line}")
+        fi
+      done < <(git diff --name-only --diff-filter=AMR HEAD 2>/dev/null || true)
+
+      if [[ ${#PLAYWRIGHT_ARGS[@]} -eq 0 ]]; then
+        echo "No affected E2E specs detected. Falling back to smoke scope."
+        PLAYWRIGHT_ARGS+=("${SMOKE_PATTERN}")
+      fi
+      ;;
+
+    full)
+      # No file filter — run everything
+      ;;
+  esac
+fi
+
+# --project filter
+if [[ -n "${PROJECT_ARG}" ]]; then
+  PLAYWRIGHT_ARGS+=("--project=${PROJECT_ARG}")
+fi
+
+# ── Run E2E tests ────────────────────────────────────────────────────────────
+
+echo ""
+echo "Running E2E tests..."
+echo "  Scope:     ${SCOPE}"
+if [[ -n "${FILE_ARG}" ]]; then
+  echo "  File:      ${FILE_ARG}"
+fi
+if [[ -n "${PROJECT_ARG}" ]]; then
+  echo "  Project:   ${PROJECT_ARG}"
+fi
+if [[ ${#PLAYWRIGHT_ARGS[@]} -gt 0 ]]; then
+  echo "  Args:      ${PLAYWRIGHT_ARGS[*]}"
+fi
+echo ""
+
+# Install dependencies in playwright container if needed
+docker exec "${PLAYWRIGHT_CONTAINER}" sh -c \
+  'test -d /workspace/projects/apps/web/node_modules || (cd /workspace && pnpm install --frozen-lockfile)' 2>/dev/null || true
+
+# Run playwright in the playwright container
+# TTY flag: only if stdin is a terminal
+TTY_FLAG=""
+if [[ -t 0 ]]; then
+  TTY_FLAG="-t"
+fi
+
+set +e
+docker exec -i ${TTY_FLAG} \
+  -w /workspace/projects/apps/web \
+  "${PLAYWRIGHT_CONTAINER}" \
+  pnpm exec playwright test "${PLAYWRIGHT_ARGS[@]+"${PLAYWRIGHT_ARGS[@]}"}"
+EXIT_CODE=$?
+set -e
+
+# ── Print artifact paths ──────────────────────────────────────────────────────
+
+echo ""
+echo "Artifacts:"
+echo "  HTML report:  docker exec ${PLAYWRIGHT_CONTAINER} ls /workspace/projects/apps/web/playwright-report/ 2>/dev/null"
+echo "  Test results: docker exec ${PLAYWRIGHT_CONTAINER} ls /workspace/projects/apps/web/test-results/ 2>/dev/null"
+echo ""
+echo "To copy artifacts to the host:"
+echo "  ${COMPOSE_CMD} -p ${COMPOSE_PROJECT_NAME} -f docker-compose.worktree.yml cp \\"
+echo "    ${PLAYWRIGHT_CONTAINER}:/workspace/projects/apps/web/playwright-report ./playwright-report"
+echo ""
+
+if [[ ${EXIT_CODE} -ne 0 ]]; then
+  echo "E2E tests FAILED (exit code: ${EXIT_CODE})."
+  exit ${EXIT_CODE}
+fi
+
+echo "E2E tests passed."

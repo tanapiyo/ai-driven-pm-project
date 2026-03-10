@@ -1,0 +1,199 @@
+openapi: 3.0.3
+info:
+  title: Contents API
+  description: |
+    Contents resource endpoints (tentative).
+
+    ## ロール別アクセス権限
+
+    | エンドポイント | PLANNER | AGENT | EXEC | ADMIN |
+    |---------------|---------|-------|------|-------|
+    | GET /contents | Auth | Auth | Auth | Auth |
+    | GET /contents/{contentId} | Auth | Auth | Auth | Auth |
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:3001
+    description: Local development server
+
+paths:
+  /contents:
+    get:
+      operationId: listContents
+      summary: List contents
+      description: |
+        Returns a paginated list of contents.
+        Note: This is a tentative endpoint. Schema details will be expanded in future issues.
+      tags:
+        - Contents
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+          description: Page number
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+          description: Number of items per page
+      responses:
+        '200':
+          description: Contents retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContentListResponse'
+              examples:
+                default:
+                  summary: List of contents
+                  value:
+                    items:
+                      - id: '550e8400-e29b-41d4-a716-446655440000'
+                        title: 'Sample Content'
+                        body: 'This is a sample content body.'
+                        createdAt: '2024-01-01T00:00:00.000Z'
+                        updatedAt: '2024-01-01T00:00:00.000Z'
+                    pagination:
+                      page: 1
+                      limit: 20
+                      total: 1
+                      totalPages: 1
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /contents/{contentId}:
+    get:
+      operationId: getContent
+      summary: Get a content by ID
+      description: |
+        Returns a single content by its ID.
+        Note: This is a tentative endpoint. Schema details will be expanded in future issues.
+      tags:
+        - Contents
+      parameters:
+        - name: contentId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Content ID
+      responses:
+        '200':
+          description: Content retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Content'
+              examples:
+                default:
+                  summary: Single content
+                  value:
+                    id: '550e8400-e29b-41d4-a716-446655440000'
+                    title: 'Sample Content'
+                    body: 'This is a sample content body.'
+                    createdAt: '2024-01-01T00:00:00.000Z'
+                    updatedAt: '2024-01-01T00:00:00.000Z'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Content not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  schemas:
+    Content:
+      type: object
+      description: A content resource (tentative schema)
+      required:
+        - id
+        - title
+        - createdAt
+        - updatedAt
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Content ID
+        title:
+          type: string
+          description: Content title
+          minLength: 1
+          maxLength: 255
+        body:
+          type: string
+          description: Content body text
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+          description: Creation timestamp
+        updatedAt:
+          type: string
+          format: date-time
+          description: Last update timestamp
+
+    ContentListResponse:
+      type: object
+      required:
+        - items
+        - pagination
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Content'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+
+    Pagination:
+      type: object
+      required:
+        - page
+        - limit
+        - total
+        - totalPages
+      properties:
+        page:
+          type: integer
+          minimum: 1
+        limit:
+          type: integer
+          minimum: 1
+          maximum: 100
+        total:
+          type: integer
+          minimum: 0
+        totalPages:
+          type: integer
+          minimum: 0
+
+    ErrorResponse:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: string
+          description: Error code
+        message:
+          type: string
+          description: Error message

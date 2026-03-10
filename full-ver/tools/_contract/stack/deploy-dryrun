@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+set -euo pipefail
+echo "No deploy-dryrun configured for this stack."
+echo "Override this script when deployment is configured."
+exit 0

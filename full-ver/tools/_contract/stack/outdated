@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+set -euo pipefail
+REPO_ROOT="${REPO_ROOT:-$(git rev-parse --show-toplevel 2>/dev/null || pwd)}"
+PROJECTS_DIR="${REPO_ROOT}/projects"
+
+if [[ -d "${PROJECTS_DIR}" ]] && [[ -f "${PROJECTS_DIR}/package.json" ]]; then
+  cd "${PROJECTS_DIR}"
+else
+  cd "${REPO_ROOT}"
+fi
+
+# pnpm outdated returns exit code 1 when outdated packages exist
+# This is informational, not an error
+pnpm outdated "$@" || true

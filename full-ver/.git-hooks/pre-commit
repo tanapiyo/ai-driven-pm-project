@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+# .git-hooks/pre-commit
+# mainブランチへの直接コミットを防止する
+
+set -euo pipefail
+
+# Colors
+RED='\033[0;31m'
+YELLOW='\033[1;33m'
+NC='\033[0m'
+
+# Protected branches
+PROTECTED_BRANCHES=("main" "master" "develop")
+
+current_branch=$(git symbolic-ref --short HEAD 2>/dev/null || echo "")
+
+for protected in "${PROTECTED_BRANCHES[@]}"; do
+    if [[ "$current_branch" == "$protected" ]]; then
+        echo ""
+        echo -e "${RED}╔════════════════════════════════════════════════════════════╗${NC}"
+        echo -e "${RED}║  ⛔ COMMIT BLOCKED: Protected branch '${protected}'            ║${NC}"
+        echo -e "${RED}╚════════════════════════════════════════════════════════════╝${NC}"
+        echo ""
+        echo -e "${YELLOW}main/master ブランチへの直接コミットは禁止されています。${NC}"
+        echo ""
+        echo "以下のいずれかの方法で作業してください:"
+        echo ""
+        echo "1. 新しいブランチを作成:"
+        echo "   git checkout -b feat/your-feature-branch"
+        echo ""
+        echo "2. worktree を使用:"
+        echo "   ./tools/worktree/spawn.sh implementer feat/GH-123-feature"
+        echo ""
+        exit 1
+    fi
+done
+
+exit 0

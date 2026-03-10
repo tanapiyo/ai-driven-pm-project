@@ -1,0 +1,16 @@
+# Build outputs
+.next/
+out/
+dist/
+
+# Generated files
+**/generated/**
+**/prisma/generated/**
+next-env.d.ts
+
+# Package manager
+node_modules/
+pnpm-lock.yaml
+apps/api/pnpm-lock.yaml
+apps/web/pnpm-lock.yaml
+packages/api-contract/src/generated/

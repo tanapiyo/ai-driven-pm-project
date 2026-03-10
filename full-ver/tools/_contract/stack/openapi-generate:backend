@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+#
+# DEPRECATED: バックエンド OpenAPI コード生成は不要になりました
+#
+# バックエンドは express-openapi-validator によるランタイムバリデーションに移行しました (ADR-0013)
+# hono-takibi によるコード生成は廃止されました
+#
+# フロントエンド型生成には以下を使用してください:
+#   ./tools/contract openapi-generate
+#
+echo "ℹ️  openapi-generate:backend は廃止されました"
+echo "   バックエンドは express-openapi-validator でランタイムバリデーションを行います (ADR-0013)"
+echo "   フロントエンド型生成: ./tools/contract openapi-generate"

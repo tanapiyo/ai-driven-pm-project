@@ -1,0 +1,21 @@
+# Codex Configuration
+# https://codex.openai.com/docs/configuration
+#
+# Security Note:
+# - CLAUDE.md contains repository conventions but NO secrets
+# - Actual secrets are protected by .gitignore and pre-bash hooks
+# - This config uses explicit secure defaults for defense-in-depth
+
+# プロジェクト指示ファイルの読み込み優先順位:
+#   1. AGENTS.override.md (Codex built-in, 最優先)
+#   2. AGENTS.md          (Codex built-in, canonical source)
+#   3. Fallback filenames (以下のリスト、AGENTS.md が無い場合のみ)
+#
+# Note: AGENTS.md はデフォルトで自動検出されるが、
+# canonical source であることを明示するためリストにも含める。
+# Codex は各ディレクトリで最初にマッチした1ファイルのみ読み込む。
+project_doc_fallback_filenames = ["AGENTS.md", "CLAUDE.md"]
+
+# 安全寄りのデフォルト設定（明示的に有効化）
+approval_policy = "on-request"    # 実行前に確認を求める
+sandbox_mode = "workspace-write"  # ワークスペース内のみ書き込み可

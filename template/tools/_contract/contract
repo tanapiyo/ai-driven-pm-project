@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+#
+# Golden Commands - Node.js + TypeScript (pnpm workspace)
+#
+set -euo pipefail
+
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+
+cmd="${1:-}"
+if [[ -z "${cmd}" ]]; then
+  echo "usage: ./tools/contract <command> [args...]"
+  echo ""
+  echo "commands:"
+  echo "  format     - フォーマット（自動修正）"
+  echo "  lint       - 静的解析"
+  echo "  typecheck  - 型チェック"
+  echo "  test       - ユニットテスト"
+  echo "  build      - ビルド"
+  echo ""
+  echo "  dev        - 開発サーバー起動（docker-compose）"
+  echo "  dev:stop   - 開発サーバー停止"
+  echo "  dev:logs   - 開発サーバーログ表示"
+  echo ""
+  echo "  audit      - 依存パッケージの脆弱性チェック"
+  echo "  outdated   - 依存パッケージの更新確認"
+  exit 2
+fi
+
+cd "${REPO_ROOT}"
+
+script="tools/_contract/stack/${cmd}"
+
+if [[ ! -f "${script}" ]]; then
+  echo "ERROR: Contract script not found for command '${cmd}'"
+  echo "Available commands:"
+  ls -1 tools/_contract/stack 2>/dev/null || echo "  (none found)"
+  exit 2
+fi
+
+if [[ ! -x "${script}" ]]; then
+  chmod +x "${script}"
+fi
+
+exec "${script}" "${@:2}"

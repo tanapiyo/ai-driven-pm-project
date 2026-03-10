@@ -1,0 +1,38 @@
+# Docker Compose Template: Frontend (Web) Service
+# Multi-repository setup - Frontend repository
+
+# Usage:
+# 1. Copy this file to your frontend repository root as docker-compose.yml
+# 2. Set STACK environment variable (e.g., export STACK=my-project)
+# 3. Run: docker compose up -d
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev  # or Dockerfile for production
+    container_name: ${STACK}-web
+    ports:
+      - "${WEB_PORT:-3000}:3000"
+    environment:
+      - NODE_ENV=${NODE_ENV:-development}
+      - NEXT_PUBLIC_API_URL=/api
+    networks:
+      - traefik-public
+    labels:
+      - "traefik.enable=true"
+      # Frontend router (low priority, catches all non-/api requests)
+      - "traefik.http.routers.${STACK}-web.rule=Host(`${STACK}.localhost`)"
+      - "traefik.http.routers.${STACK}-web.entrypoints=web"
+      - "traefik.http.routers.${STACK}-web.priority=1"
+      - "traefik.http.services.${STACK}-web.loadbalancer.server.port=3000"
+
+networks:
+  traefik-public:
+    external: true
+    name: traefik-public
+
+# Notes:
+# - STACK variable ensures unique naming across multiple deployments
+# - traefik-public network must be created beforehand (see infra/docker-compose.traefik.yml)
+# - API requests to /api/* will be routed to backend by Traefik (via higher priority rule)

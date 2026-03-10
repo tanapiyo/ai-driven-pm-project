@@ -1,0 +1,180 @@
+#!/usr/bin/env bash
+# Contract: up - Start full development environment with DevContainer
+# Uses docker-compose.worktree.yml for web + api + db with Traefik routing
+set -euo pipefail
+
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
+cd "${REPO_ROOT}"
+
+# Source naming library for consistent container naming
+# shellcheck source=../../worktree/lib/naming.sh
+source "${REPO_ROOT}/tools/worktree/lib/naming.sh"
+
+# SAFETY CHECK: Prevent running from root repository
+# .git is a file in worktrees, a directory in the main repository
+if [[ -d .git ]]; then
+    echo "❌ ERROR: You are running 'contract up' from the root repository."
+    echo ""
+    echo "   This command MUST be run from a worktree directory."
+    echo "   Root repository environments would interfere with worktree isolation."
+    echo ""
+    echo "   To start a worktree:"
+    echo "   1. Create a worktree: ./tools/worktree/spawn.sh implementer <branch-name>"
+    echo "   2. Enter the worktree: cd ./worktrees/<branch-name>"
+    echo "   3. Then run: ./tools/contract up"
+    echo ""
+    exit 1
+fi
+
+# Determine worktree name: use directory name
+get_worktree_name() {
+    basename "$(pwd)"
+}
+
+# Load existing .env or create new one
+EXISTING_ENV=""
+if [[ -f .env ]]; then
+    # shellcheck source=/dev/null
+    EXISTING_ENV="$(cat .env)"
+fi
+
+# Extract existing values or use defaults
+WORKTREE="$(get_worktree_name)"
+COMPOSE_PROJECT_NAME="${WORKTREE}"
+
+# Get branch name from git for consistent naming
+BRANCH_NAME=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "${WORKTREE}")
+
+# Preserve ENDPOINT_NAME from existing .env if it exists
+# Otherwise, generate it from branch and repo name using naming library
+ENDPOINT_NAME=""
+if [[ -n "$EXISTING_ENV" ]]; then
+    ENDPOINT_NAME=$(echo "$EXISTING_ENV" | grep "^ENDPOINT_NAME=" | cut -d'=' -f2- | tr -d '"' || true)
+fi
+
+if [[ -z "$ENDPOINT_NAME" ]]; then
+    # Generate ENDPOINT_NAME using the naming library for consistency
+    ENDPOINT_NAME=$(get_endpoint_name "$BRANCH_NAME" "$REPO_ROOT")
+fi
+
+# Generate CONTAINER_NAME using the naming library
+# This must match what spawn.sh generates for consistency
+CONTAINER_NAME=""
+if [[ -n "$EXISTING_ENV" ]]; then
+    CONTAINER_NAME=$(echo "$EXISTING_ENV" | grep "^CONTAINER_NAME=" | cut -d'=' -f2- | tr -d '"' || true)
+fi
+
+if [[ -z "$CONTAINER_NAME" ]]; then
+    CONTAINER_NAME=$(get_container_name "$BRANCH_NAME")
+fi
+
+# Preserve INTERNAL_SUBNET from existing .env if set by spawn.sh
+# Without this, docker-compose.worktree.yml falls back to the default subnet,
+# causing "Pool overlaps" errors when multiple worktrees run simultaneously.
+# See issue #843.
+INTERNAL_SUBNET=""
+if [[ -n "$EXISTING_ENV" ]]; then
+    INTERNAL_SUBNET=$(echo "$EXISTING_ENV" | grep "^INTERNAL_SUBNET=" | cut -d'=' -f2- | tr -d '"' || true)
+fi
+
+# Preserve WEB_STATIC_IP from existing .env if set by spawn.sh
+WEB_STATIC_IP=""
+if [[ -n "$EXISTING_ENV" ]]; then
+    WEB_STATIC_IP=$(echo "$EXISTING_ENV" | grep "^WEB_STATIC_IP=" | cut -d'=' -f2- | tr -d '"' || true)
+fi
+
+# Update .env with current values (preserving ENDPOINT_NAME, CONTAINER_NAME,
+# INTERNAL_SUBNET, and WEB_STATIC_IP)
+cat > .env << EOF
+WORKTREE=${WORKTREE}
+COMPOSE_PROJECT_NAME=${COMPOSE_PROJECT_NAME}
+ENDPOINT_NAME=${ENDPOINT_NAME}
+CONTAINER_NAME=${CONTAINER_NAME}
+HOST_WORKSPACE_PATH=${REPO_ROOT}
+$([ -n "$INTERNAL_SUBNET" ] && echo "INTERNAL_SUBNET=${INTERNAL_SUBNET}" || true)
+$([ -n "$WEB_STATIC_IP" ] && echo "WEB_STATIC_IP=${WEB_STATIC_IP}" || true)
+EOF
+
+export WORKTREE
+export COMPOSE_PROJECT_NAME
+export ENDPOINT_NAME
+export CONTAINER_NAME
+if [[ -n "$INTERNAL_SUBNET" ]]; then export INTERNAL_SUBNET; fi
+if [[ -n "$WEB_STATIC_IP" ]]; then export WEB_STATIC_IP; fi
+
+echo "🚀 Starting development environment with DevContainer..."
+echo "   Worktree:        ${WORKTREE}"
+echo "   Endpoint:        ${ENDPOINT_NAME}"
+echo "   Project name:    ${COMPOSE_PROJECT_NAME}"
+echo "   Container name:  ${CONTAINER_NAME}"
+echo ""
+
+# Clear Next.js cache to prevent Turbopack stale cache issues
+if [[ -d "projects/apps/web/.next" ]]; then
+  echo "🧹 Clearing Next.js cache..."
+  rm -rf "projects/apps/web/.next"
+fi
+
+# Check if docker compose (V2) is available
+if docker compose version &>/dev/null; then
+  COMPOSE_CMD="docker compose"
+else
+  COMPOSE_CMD="docker-compose"
+fi
+
+# Check for compose file
+if [[ ! -f "docker-compose.worktree.yml" ]]; then
+  echo "ERROR: docker-compose.worktree.yml not found"
+  exit 1
+fi
+
+# Ensure traefik network exists
+if ! docker network inspect traefik-public &>/dev/null; then
+  echo "📡 Creating traefik-public network..."
+  docker network create traefik-public
+fi
+
+# Build and start all services (includes DevContainer 'dev' service)
+# CRITICAL: Explicitly specify project name for complete isolation
+echo "🔨 Building and starting services..."
+${COMPOSE_CMD} -p "${COMPOSE_PROJECT_NAME}" -f docker-compose.worktree.yml up --build -d
+
+# Wait for dev container to be healthy (dependencies installed)
+echo "⏳ Waiting for DevContainer to install dependencies..."
+DEV_CONTAINER="${CONTAINER_NAME}-dev"
+for i in {1..120}; do
+  STATUS=$(docker inspect --format='{{.State.Health.Status}}' "${DEV_CONTAINER}" 2>/dev/null || echo "unknown")
+  if [[ "${STATUS}" == "healthy" ]]; then
+    echo "✅ Dependencies installed successfully"
+    break
+  fi
+  if [[ $i -eq 120 ]]; then
+    echo "⚠️  Timeout waiting for dependencies. Check logs with: ./tools/contract up:logs dev"
+  fi
+  sleep 2
+done
+
+echo ""
+echo "════════════════════════════════════════════════════════════════"
+echo "✅ Development environment started!"
+echo "════════════════════════════════════════════════════════════════"
+echo ""
+echo "📍 Access Points:"
+echo "┌─────────────┬──────────────────────────────────────────────┐"
+echo "│ Frontend    │ http://${ENDPOINT_NAME}.localhost             │"
+echo "│ API         │ http://be-${ENDPOINT_NAME}.localhost          │"
+echo "│ Database    │ postgresql://postgres:postgres@localhost:5432/app │"
+echo "└─────────────┴──────────────────────────────────────────────┘"
+echo ""
+echo "🐳 DevContainer:"
+echo "   Container: ${DEV_CONTAINER}"
+echo "   Attach:    docker exec -it ${DEV_CONTAINER} bash"
+echo ""
+echo "🛠️  Commands:"
+echo "   ./tools/contract up:logs    - View logs"
+echo "   ./tools/contract up:logs web - View frontend logs"
+echo "   ./tools/contract up:logs api - View API logs"
+echo "   ./tools/contract up:stop    - Stop environment"
+echo "   ./tools/contract up:status  - Show container status"
+echo ""
+echo "════════════════════════════════════════════════════════════════"

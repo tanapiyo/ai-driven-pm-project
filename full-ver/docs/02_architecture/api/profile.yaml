@@ -1,0 +1,301 @@
+openapi: 3.0.3
+info:
+  title: Profile API
+  description: |
+    認証済みユーザーのプロフィール編集を行う Profile API。
+    名前変更とパスワード変更のエンドポイントを提供する。
+
+    ## ロール別アクセス権限
+
+    | エンドポイント | PLANNER | AGENT | EXEC | ADMIN |
+    |---------------|---------|-------|------|-------|
+    | PATCH /users/me/name | ✓ | ✓ | ✓ | ✓ |
+    | PATCH /users/me/password | ✓ | ✓ | ✓ | ✓ |
+
+    ※ 全認証済みユーザーが自身のプロフィールを編集可能
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:3001
+    description: Local development server
+
+security:
+  - bearerAuth: []
+
+paths:
+  /users/me/name:
+    patch:
+      operationId: updateName
+      summary: Update Name
+      description: |
+        認証済みユーザーの名前を更新する。
+        名前は1〜100文字である必要がある。
+      tags:
+        - Profile
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateNameRequest'
+            examples:
+              normal:
+                summary: 通常のリクエスト
+                value:
+                  name: "山田 太郎"
+      responses:
+        '200':
+          description: 名前の更新成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+              examples:
+                success:
+                  summary: 更新成功
+                  value:
+                    id: "550e8400-e29b-41d4-a716-446655440000"
+                    name: "山田 太郎"
+                    email: "yamada@example.com"
+                    createdAt: "2024-01-01T00:00:00.000Z"
+                    updatedAt: "2024-01-15T12:00:00.000Z"
+        '400':
+          description: バリデーションエラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                invalidName:
+                  summary: 名前が不正
+                  value:
+                    code: "INVALID_NAME"
+                    message: "Name must be 1-100 characters"
+                validationError:
+                  summary: バリデーションエラー
+                  value:
+                    code: "VALIDATION_ERROR"
+                    message: "Name is required"
+        '401':
+          description: 認証エラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                unauthorized:
+                  summary: 未認証
+                  value:
+                    code: "UNAUTHORIZED"
+                    message: "Authentication required"
+        '404':
+          description: ユーザーが見つからない
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                notFound:
+                  summary: ユーザーが見つからない
+                  value:
+                    code: "USER_NOT_FOUND"
+                    message: "User not found"
+        '500':
+          description: サーバーエラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /users/me/password:
+    patch:
+      operationId: updatePassword
+      summary: Update Password
+      description: |
+        認証済みユーザーのパスワードを変更する。
+        現在のパスワードの確認が必要。
+        パスワード変更後、すべてのリフレッシュトークンが無効化される。
+      tags:
+        - Profile
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdatePasswordRequest'
+            examples:
+              normal:
+                summary: 通常のリクエスト
+                value:
+                  currentPassword: "OldPassword123"
+                  newPassword: "NewPassword456"
+      responses:
+        '200':
+          description: パスワード変更成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PasswordChangeResponse'
+              examples:
+                success:
+                  summary: 変更成功
+                  value:
+                    message: "Password has been changed successfully."
+        '400':
+          description: バリデーションエラーまたはパスワードエラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                incorrectPassword:
+                  summary: 現在のパスワードが不正
+                  value:
+                    code: "INCORRECT_PASSWORD"
+                    message: "Current password is incorrect"
+                weakPassword:
+                  summary: 新しいパスワードが弱い
+                  value:
+                    code: "WEAK_PASSWORD"
+                    message: "Password must be at least 8 characters with letters and numbers"
+                validationError:
+                  summary: バリデーションエラー
+                  value:
+                    code: "VALIDATION_ERROR"
+                    message: "New password is required"
+        '401':
+          description: 認証エラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                unauthorized:
+                  summary: 未認証
+                  value:
+                    code: "UNAUTHORIZED"
+                    message: "Authentication required"
+        '404':
+          description: ユーザーが見つからない
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                notFound:
+                  summary: ユーザーが見つからない
+                  value:
+                    code: "USER_NOT_FOUND"
+                    message: "User not found"
+        '500':
+          description: サーバーエラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT アクセストークン
+
+  schemas:
+    UpdateNameRequest:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+          description: 新しい名前（1〜100文字）
+          example: "山田 太郎"
+
+    UpdatePasswordRequest:
+      type: object
+      required:
+        - currentPassword
+        - newPassword
+      properties:
+        currentPassword:
+          type: string
+          minLength: 1
+          description: 現在のパスワード
+          example: "OldPassword123"
+        newPassword:
+          type: string
+          minLength: 8
+          pattern: "^(?=.*[A-Za-z])(?=.*[0-9]).{8,}$"
+          description: |
+            新しいパスワード。以下の条件を満たす必要がある:
+            - 8文字以上
+            - 少なくとも1つの英字
+            - 少なくとも1つの数字
+          example: "NewPassword456"
+
+    UserResponse:
+      type: object
+      required:
+        - id
+        - name
+        - email
+        - createdAt
+        - updatedAt
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: ユーザーID
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        name:
+          type: string
+          description: ユーザー名
+          example: "山田 太郎"
+        email:
+          type: string
+          format: email
+          description: メールアドレス
+          example: "yamada@example.com"
+        createdAt:
+          type: string
+          format: date-time
+          description: アカウント作成日時（ISO 8601形式）
+          example: "2024-01-01T00:00:00.000Z"
+        updatedAt:
+          type: string
+          format: date-time
+          description: 最終更新日時（ISO 8601形式）
+          example: "2024-01-15T12:00:00.000Z"
+
+    PasswordChangeResponse:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          type: string
+          description: 成功メッセージ
+          example: "Password has been changed successfully."
+
+    ErrorResponse:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: string
+          description: エラーコード
+          example: "VALIDATION_ERROR"
+        message:
+          type: string
+          description: エラーメッセージ
+          example: "Name is required"

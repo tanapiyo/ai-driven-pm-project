@@ -1,0 +1,48 @@
+# CODEOWNERS - Code Ownership Definition
+#
+# GitHub will request review from the listed owners when PRs modify matching paths.
+# See: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+#
+# Format: <pattern> <@owner1> <@owner2> ...
+#
+# Note: Later rules take precedence over earlier ones.
+
+# ==============================================================================
+# Default: All files
+# ==============================================================================
+# * @your-org/core-maintainers
+
+# ==============================================================================
+# Documentation
+# ==============================================================================
+/docs/                      @your-org/docs-team
+/AGENTS.md                  @your-org/core-maintainers
+/CLAUDE.md                  @your-org/core-maintainers
+/CONTRIBUTING.md            @your-org/core-maintainers
+/README.md                  @your-org/core-maintainers
+
+# ==============================================================================
+# Architecture & Process
+# ==============================================================================
+/docs/00_process/           @your-org/core-maintainers
+/docs/02_architecture/      @your-org/architects
+/docs/02_architecture/adr/  @your-org/architects
+
+# ==============================================================================
+# DevContainer & Tooling
+# ==============================================================================
+/.devcontainer/             @your-org/platform-team
+/tools/                     @your-org/platform-team
+/projects/                  @your-org/core-maintainers
+
+# ==============================================================================
+# GitHub Configuration
+# ==============================================================================
+/.github/                   @your-org/core-maintainers
+/.github/workflows/         @your-org/platform-team
+
+# ==============================================================================
+# Security-sensitive files
+# ==============================================================================
+/.devcontainer/init-firewall.sh   @your-org/security-team
+/.devcontainer/allowlist.domains  @your-org/security-team

@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+# seed-integrity-check — Validate seed data referential integrity (#463)
+#
+# Runs after `./tools/contract migrate` + `pnpm db:seed` to verify:
+#   1. Master data code coverage (Channel, Rank codes)
+#   2. Minimum record counts per seeded table
+#   3. Required field NULL/empty checks
+#   4. FK orphan detection
+#
+# Requirements: DATABASE_URL must be set and reachable.
+set -euo pipefail
+
+REPO_ROOT="${REPO_ROOT:-$(git rev-parse --show-toplevel 2>/dev/null || pwd)}"
+API_DIR="${REPO_ROOT}/projects/apps/api"
+
+echo "🔍 Running seed data integrity checks..."
+
+cd "${API_DIR}"
+
+pnpm db:integrity-check
+
+echo "✅ Seed integrity check completed"

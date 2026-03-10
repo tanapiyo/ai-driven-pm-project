@@ -1,0 +1,64 @@
+openapi: 3.0.3
+info:
+  title: Version API
+  description: |
+    API version information endpoint.
+
+    ## ロール別アクセス権限
+
+    | エンドポイント | PLANNER | AGENT | EXEC | ADMIN |
+    |---------------|---------|-------|------|-------|
+    | GET /version | Public | Public | Public | Public |
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:3001
+    description: Local development server
+
+paths:
+  /version:
+    get:
+      operationId: getVersion
+      summary: API Version Info
+      description: |
+        Returns the current API version and runtime metadata.
+        Useful for confirming which version of the API is running.
+      tags:
+        - Health
+      security: []
+      responses:
+        '200':
+          description: Version information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VersionResponse'
+              examples:
+                default:
+                  summary: Version response
+                  value:
+                    version: '0.0.1'
+                    name: '@monorepo/api'
+                    timestamp: '2024-01-01T00:00:00.000Z'
+
+components:
+  schemas:
+    VersionResponse:
+      type: object
+      required:
+        - version
+        - name
+        - timestamp
+      properties:
+        version:
+          type: string
+          description: Semantic version of the API (from package.json)
+          example: '0.0.1'
+        name:
+          type: string
+          description: Package name of the API
+          example: '@monorepo/api'
+        timestamp:
+          type: string
+          format: date-time
+          description: Current server timestamp

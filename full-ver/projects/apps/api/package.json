@@ -1,0 +1,47 @@
+{
+  "name": "@monorepo/api",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/presentation/express/server.ts",
+    "dev:debug": "tsx watch --inspect=0.0.0.0:9229 src/presentation/express/server.ts",
+    "start": "node dist/presentation/express/server.js",
+    "build": "tsup src/presentation/express/server.ts --format esm --dts",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "db:generate": "prisma generate",
+    "db:migrate": "prisma migrate dev",
+    "db:push": "prisma db push",
+    "db:seed": "tsx prisma/seed.ts",
+    "db:integrity-check": "tsx prisma/seeds/integrityCheck.ts",
+    "db:studio": "prisma studio"
+  },
+  "dependencies": {
+    "@monorepo/shared": "workspace:*",
+    "@prisma/adapter-mariadb": "^7.4.2",
+    "@prisma/client": "^7.4.2",
+    "bcrypt": "^6.0.0",
+    "dotenv": "^17.3.1",
+    "express": "^5.2.0",
+    "express-openapi-validator": "^5.6.0",
+    "jsonwebtoken": "^9.0.3",
+    "mariadb": "^3.4.0",
+    "openai": "^6.25.0",
+    "uuid": "^13.0.0",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@types/bcrypt": "^6.0.0",
+    "@types/express": "^5.0.0",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/supertest": "^7.0.0",
+    "csv-parse": "^6.1.0",
+    "prisma": "^7.4.2",
+    "supertest": "^7.2.0",
+    "tsup": "^8.0.0",
+    "tsx": "^4.7.0",
+    "vitest": "^4.0.18"
+  }
+}

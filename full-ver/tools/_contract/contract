@@ -1,0 +1,82 @@
+#!/usr/bin/env bash
+#
+# Golden Commands - Node.js + TypeScript (pnpm workspace)
+#
+# DevContainer 対応:
+#   - ホストから実行: 自動的に DevContainer 内で実行
+#   - DevContainer 内から実行: 直接実行
+#
+set -euo pipefail
+
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+LIB_DIR="${REPO_ROOT}/tools/_contract/lib"
+
+# DevContainer 実行ヘルパーを読み込み
+# shellcheck source=lib/devcontainer-exec.sh
+source "${LIB_DIR}/devcontainer-exec.sh"
+
+cmd="${1:-}"
+if [[ -z "${cmd}" ]]; then
+  echo "usage: ./tools/contract <command> [args...]"
+  echo ""
+  echo "commands:"
+  echo "  format         - フォーマット（自動修正）"
+  echo "  lint           - 静的解析"
+  echo "  typecheck      - 型チェック"
+  echo "  test           - ユニットテスト"
+  echo "  build          - ビルド"
+  echo "  guardrail      - ガードレールチェック"
+  echo ""
+  echo "  openapi-generate          - OpenAPI から全コード生成 (backend + frontend)"
+  echo "  openapi-generate:backend  - OpenAPI からバックエンド生成 (Hono routes)"
+  echo "  openapi-generate:frontend - OpenAPI からフロントエンド生成 (orval)"
+  echo "  openapi-check             - OpenAPI 生成物が最新か検証"
+  echo ""
+  echo "  adr-validate   - ADR の必須セクション存在チェック"
+  echo ""
+  echo "  audit          - 依存パッケージの脆弱性チェック"
+  echo "  outdated       - 依存パッケージの更新確認"
+  echo ""
+  echo "  e2e            - E2Eテスト"
+  echo "  db:setup       - DB 初期化（generate + migrate + seed）新規開発者向け一括セットアップ"
+  echo "  migrate        - DBマイグレーション"
+  echo "  seed-integrity-check - シードデータ整合性チェック (#463)"
+  echo "  deploy-dryrun  - デプロイドライラン"
+  echo "  up             - 開発環境起動（worktree モード: web+api+db）"
+  echo "  up:stop        - 開発環境停止"
+  echo "  up:logs        - 開発環境ログ表示"
+  echo "  up:status      - 開発環境ステータス確認"
+  echo "  dev            - 開発サーバー起動（projects/docker-compose）"
+  echo "  dev:stop       - 開発サーバー停止"
+  echo "  dev:logs       - 開発サーバーログ表示"
+  echo "  prune-containers - 不要なコンテナを掃除"
+  exit 2
+fi
+
+cd "${REPO_ROOT}"
+
+script="tools/_contract/stack/${cmd}"
+
+if [[ ! -f "${script}" ]]; then
+  echo "ERROR: Contract script not found for command '${cmd}'"
+  echo "Available commands:"
+  ls -1 tools/_contract/stack 2>/dev/null || echo "  (none found)"
+  exit 2
+fi
+
+if [[ ! -x "${script}" ]]; then
+  chmod +x "${script}"
+fi
+
+# DevContainer 関連のコマンドはホストで直接実行
+# それ以外は DevContainer 内で実行
+case "${cmd}" in
+  up|up:stop|up:logs|up:status|dev|dev:stop|dev:logs|prune-containers|e2e|adr-validate)
+    # Docker 操作・ホスト直接実行コマンド
+    exec "${script}" "${@:2}"
+    ;;
+  *)
+    # その他のコマンドは DevContainer 内で実行
+    devcontainer_exec "${script}" "${@:2}"
+    ;;
+esac

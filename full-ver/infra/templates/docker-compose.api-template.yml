@@ -1,0 +1,49 @@
+# Docker Compose Template: Backend (API) Service
+# Multi-repository setup - Backend repository
+
+# Usage:
+# 1. Copy this file to your backend repository root as docker-compose.yml
+# 2. Set STACK environment variable (e.g., export STACK=my-project)
+# 3. Run: docker compose up -d
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev  # or Dockerfile for production
+    container_name: ${STACK}-api
+    ports:
+      - "${API_PORT:-8080}:8080"
+    environment:
+      - NODE_ENV=${NODE_ENV:-development}
+      - PORT=8080
+      - DATABASE_URL=${DATABASE_URL}
+    networks:
+      - traefik-public
+    labels:
+      - "traefik.enable=true"
+      # Same-origin API router (high priority, intercepts /api/* requests)
+      - "traefik.http.routers.${STACK}-api.rule=Host(`${STACK}.localhost`) && PathPrefix(`/api`)"
+      - "traefik.http.routers.${STACK}-api.entrypoints=web"
+      - "traefik.http.routers.${STACK}-api.priority=100"
+      - "traefik.http.services.${STACK}-api.loadbalancer.server.port=8080"
+      # StripPrefix middleware: /api/csrf-token -> /csrf-token
+      - "traefik.http.middlewares.${STACK}-strip-api.stripprefix.prefixes=/api"
+      - "traefik.http.routers.${STACK}-api.middlewares=${STACK}-strip-api"
+      # Backend direct access router (optional, for debugging)
+      - "traefik.http.routers.${STACK}-be-direct.rule=Host(`be-${STACK}.localhost`)"
+      - "traefik.http.routers.${STACK}-be-direct.entrypoints=web"
+      - "traefik.http.routers.${STACK}-be-direct.priority=1"
+
+networks:
+  traefik-public:
+    external: true
+    name: traefik-public
+
+# Notes:
+# - STACK variable ensures unique naming across multiple deployments
+# - traefik-public network must be created beforehand (see infra/docker-compose.traefik.yml)
+# - Priority 100 ensures /api/* requests are intercepted before reaching frontend (priority 1)
+# - StripPrefix middleware removes /api from the path before forwarding to backend
+# - Backend receives requests without /api prefix (e.g., /csrf-token instead of /api/csrf-token)
+# - be.${STACK}.localhost is available for direct debugging (bypasses Traefik prefix stripping)

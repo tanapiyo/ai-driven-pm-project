@@ -1,0 +1,261 @@
+---
+name: Feature Request
+description: 新機能のリクエスト
+title: "[Feature] "
+labels: ["type:feature"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Feature Request
+        新機能のリクエストありがとうございます！
+        不明な項目は「Unknown」や「未定」と記入してOKです。
+
+  # === 必須項目（最小限） ===
+
+  - type: textarea
+    id: user-value
+    attributes:
+      label: ユーザー価値（User Value）
+      description: この機能で誰がどう嬉しくなりますか？
+      placeholder: "〇〇ユーザーが△△できるようになり、□□が改善される"
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: 課題/背景（Problem）
+      description: どのような課題を解決したいですか？
+      placeholder: "現状は〇〇ができなくて困っている / 〇〇が非効率"
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: 提案/解決策（Solution）
+      description: どのような機能・変更を想定していますか？
+      placeholder: "〇〇ができるようにする / △△を追加する"
+    validations:
+      required: true
+
+  # === 影響範囲（ドロップダウン + チェックボックスで簡単入力） ===
+
+  - type: checkboxes
+    id: impact-points
+    attributes:
+      label: 影響範囲（Impact Points）
+      description: 影響がありそうな領域をチェック（不明な場合は空でOK）
+      options:
+        - label: "UI / フロントエンド"
+        - label: "API / バックエンド"
+        - label: "認証 / 認可（Auth）"
+        - label: "データベース / データ構造"
+        - label: "テスト"
+        - label: "ドキュメント"
+        - label: "リリース / デプロイ"
+        - label: "不明（Unknown）"
+
+  - type: checkboxes
+    id: devcontainer-hint
+    attributes:
+      label: 🐳 DevContainer 要否
+      description: このタスクで Docker 開発環境（DB/API/Web）が必要かを判定します。チェックなし = 自動判定（Impact Points から推定）
+      options:
+        - label: "DevContainer 不要（ドキュメント/設定ファイルのみの変更）"
+
+  # === フロント実装観点（UI変更がある場合） ===
+
+  - type: dropdown
+    id: screen-id
+    attributes:
+      label: 画面ID（Screen ID）
+      description: |
+        UI変更がある場合、対象画面を選択（docs/01_product/screens/ 参照）
+        複数画面にまたがる場合は「複数」を選び、完了条件に画面IDを列挙
+      options:
+        - "なし（UI変更なし）"
+        - "L01 - ログイン"
+        - "H01 - ホーム"
+        - "S01 - 検索ホーム"
+        - "AD01 - ユーザー/ロール管理"
+        - "複数（Multiple）"
+      default: 0
+    validations:
+      required: false
+
+  - type: textarea
+    id: acceptance-criteria-gwt
+    attributes:
+      label: 受入基準 — Given/When/Then（Acceptance Criteria）
+      description: |
+        各ACをGiven/When/Then形式で記載してください。
+        フロント変更がある場合は必須です。
+      placeholder: |
+        **AC-001: タイトル**
+        - Given: 前提条件
+        - When: 操作
+        - Then: 期待結果
+
+        **AC-002: タイトル**
+        - Given: 前提条件
+        - When: 操作
+        - Then: 期待結果
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: ui-state-perspectives
+    attributes:
+      label: UI状態観点（UI State Perspectives）
+      description: |
+        UI変更がある場合、以下の状態を検討済みか確認してください。
+        該当しない項目はチェック不要です。
+      options:
+        - label: "Loading（データ取得中の表示）"
+        - label: "Empty（データなし時の表示）"
+        - label: "Error（エラー発生時の表示）"
+        - label: "Permission Denied（権限不足時の表示）"
+        - label: "Responsive（モバイル/タブレット対応）"
+
+  # === 完了条件（実装者が迷わないために） ===
+
+  - type: textarea
+    id: definition-of-done
+    attributes:
+      label: 完了条件（Definition of Done）
+      description: "何ができたら完了か？チェックリスト形式推奨"
+      placeholder: |
+        - [ ] 〇〇画面から△△ができる
+        - [ ] □□のテストが通る
+        - [ ] ドキュメントが更新されている
+      value: |
+        - [ ]
+        - [ ]
+        - [ ]
+    validations:
+      required: true
+
+  # === 任意項目 ===
+
+  - type: dropdown
+    id: role
+    attributes:
+      label: 主担当職種（Role）
+      description: 主に誰が対応するか（Issue 作成後に対応するラベル role:* を付与してください。詳細は .github/labels.yml 参照）
+      options:
+        - "role:frontend — フロントエンド"
+        - "role:backend — バックエンド"
+        - "role:designer — デザイナー"
+        - "role:infra — インフラ"
+        - "role:ops — オペレーション"
+      default: 0
+    validations:
+      required: false
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: 優先度（Priority）
+      description: 緊急度・重要度の目安（Issue 作成後に対応するラベル priority:* を付与してください。詳細は .github/labels.yml 参照）
+      options:
+        - "priority:must — 必須（ブロッカー）"
+        - "priority:nice — Nice to Have"
+        - "priority:medium — 中優先度"
+        - "priority:low — 低優先度"
+      default: 0
+    validations:
+      required: false
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: 検討した代替案（Alternatives）
+      description: 他に検討した方法があれば
+      placeholder: "〇〇も考えたが、△△の理由で不採用"
+    validations:
+      required: false
+
+  - type: textarea
+    id: issue-plan
+    attributes:
+      label: 分割案（Issue Plan）
+      description: 大きい場合は分割案を記載（下書きOK、後で分割）
+      placeholder: |
+        - [ ] Issue 1: 〇〇の実装
+        - [ ] Issue 2: △△のテスト
+        - [ ] Issue 3: ドキュメント更新
+    validations:
+      required: false
+
+  - type: textarea
+    id: risks-unknowns
+    attributes:
+      label: リスク/未確認事項（Risks/Unknowns）
+      description: 不確実な点、確認が必要な点
+      placeholder: "〇〇の仕様が未確定 / △△の影響が不明"
+    validations:
+      required: false
+
+  - type: textarea
+    id: non-goals
+    attributes:
+      label: 非対象（Non-goals）
+      description: この Issue では対応しない範囲（スコープ明確化）
+      placeholder: "〇〇は今回対象外 / △△は別 Issue で対応"
+    validations:
+      required: false
+
+  - type: textarea
+    id: references
+    attributes:
+      label: 参考（References）
+      description: 関連リンク、スクリーンショット、ログなど
+      placeholder: |
+        - Figma: https://...
+        - 関連 Issue: #123
+    validations:
+      required: false
+
+  # === UX心理学観点（UI変更がある場合、任意） ===
+
+  - type: markdown
+    attributes:
+      value: |
+        ## UX心理学観点
+        UI変更がある場合、UX心理学の観点からの検討を記載してください（任意）。
+
+  - type: textarea
+    id: ux-impact-assessment
+    attributes:
+      label: UX Impact Assessment
+      description: |
+        UX心理学の観点からの影響評価を記載してください（UI変更がある場合に推奨）。
+        skill/agent/design-system/ux-psychology/rules/catalog.json のコンセプトカタログを参照できます。
+      placeholder: |
+        **参照した概念**: 例）ヒックの法則、フィッツの法則
+        **適用/非適用の理由**: 例）選択肢が多いため、カテゴリ分けで認知負荷を軽減
+        **測定方法**: 例）タスク完了時間、エラー率
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: dark-pattern-prevention
+    attributes:
+      label: ダークパターン防止確認
+      description: UI変更がある場合、以下を確認してください（任意）。
+      options:
+        - label: "ユーザーの目的達成を支援するデザインになっている"
+        - label: "ユーザーが自由に選択・取消できる"
+        - label: "心理的圧力（偽の緊急性・恐怖訴求など）を与えていない"
+
+  # === 確認事項 ===
+
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: 確認事項
+      options:
+        - label: 既存の Issue を検索し、重複がないことを確認しました
+          required: true

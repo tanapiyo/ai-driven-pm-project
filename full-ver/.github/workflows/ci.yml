@@ -1,0 +1,342 @@
+name: CI
+on:
+  pull_request:
+  push:
+    branches: ["main"]
+
+# Minimum permissions for security
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  # ============================================================
+  # SECURITY GATES (P0 - Must pass before any code runs)
+  # ============================================================
+  security-checks:
+    name: Security Checks
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: projects
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      # Secrets Scan
+      - name: Install gitleaks
+        working-directory: .
+        run: |
+          GITLEAKS_VERSION="8.21.2"
+          curl -sSfL "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz" | tar xz
+          chmod +x gitleaks
+
+      - name: Run gitleaks
+        working-directory: .
+        run: ./gitleaks detect --source . --verbose --exit-code 1
+
+      # Dependency Audit
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 20
+          cache: 'pnpm'
+          cache-dependency-path: projects/pnpm-lock.yaml
+
+      - name: Setup Takumi Guard npm
+        uses: flatt-security/setup-takumi-guard-npm@v1
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Audit dependencies
+        run: pnpm audit --audit-level=high
+        continue-on-error: false
+
+  # ============================================================
+  # QUALITY GATES
+  # ============================================================
+  quality-checks:
+    name: Quality Checks
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: projects
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 20
+          cache: 'pnpm'
+          cache-dependency-path: projects/pnpm-lock.yaml
+
+      - name: Setup Takumi Guard npm
+        uses: flatt-security/setup-takumi-guard-npm@v1
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # Lockfile Sync Check
+      - name: Check lockfile consistency
+        run: |
+          set -euo pipefail
+
+          # Determine base reference based on event type
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            BASE_SHA="${{ github.event.pull_request.base.sha }}"
+          else
+            BASE_SHA="HEAD~1"
+          fi
+
+          # Check for dependency-related package.json changes scoped to projects/
+          # Only flag when dependencies/devDependencies/peerDependencies/engines
+          # actually changed — script-only edits don't affect the lockfile.
+          CHANGED_PKG=$(git diff --name-only "$BASE_SHA"...HEAD | \
+            grep '^projects/.*package\.json$' || true)
+          CHANGED_LOCK=$(git diff --name-only "$BASE_SHA"...HEAD | \
+            grep '^projects/pnpm-lock\.yaml$' || true)
+
+          HAS_DEP_CHANGE=false
+          if [ -n "$CHANGED_PKG" ]; then
+            while IFS= read -r pkg_file; do
+              [ -z "$pkg_file" ] && continue
+              DEP_DIFF=$(git diff "$BASE_SHA"...HEAD -- "$pkg_file" | \
+                grep -E '^\+.*"(dependencies|devDependencies|peerDependencies|engines|packageManager)"' || true)
+              if [ -n "$DEP_DIFF" ]; then
+                HAS_DEP_CHANGE=true
+                break
+              fi
+            done <<< "$CHANGED_PKG"
+          fi
+
+          if [ "$HAS_DEP_CHANGE" = true ] && [ -z "$CHANGED_LOCK" ]; then
+            echo "::error::package.json の依存関係が変更されていますが pnpm-lock.yaml が更新されていません。"
+            echo "::error::DevContainer 内で 'pnpm install' を実行して lockfile を再生成してください。"
+            echo ""
+            echo "変更された package.json:"
+            echo "$CHANGED_PKG"
+            exit 1
+          fi
+
+          echo "✅ Lockfile sync check passed"
+
+      # OpenAPI Check
+      - name: Check OpenAPI generated files are up to date
+        run: pnpm openapi:check
+
+  lint-and-typecheck:
+    name: Lint & Typecheck
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: projects
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 20
+          cache: 'pnpm'
+          cache-dependency-path: projects/pnpm-lock.yaml
+
+      - name: Setup Takumi Guard npm
+        uses: flatt-security/setup-takumi-guard-npm@v1
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate Prisma Client
+        run: pnpm --filter @monorepo/api db:generate
+
+      - name: Generate Next.js types
+        run: pnpm --filter @monorepo/web exec next typegen
+
+      - name: Format check
+        run: pnpm format:check
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+  contract:
+    name: Contract Smoke Test
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: projects
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 20
+          cache: 'pnpm'
+          cache-dependency-path: projects/pnpm-lock.yaml
+
+      - name: Setup Takumi Guard npm
+        uses: flatt-security/setup-takumi-guard-npm@v1
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate Prisma Client
+        run: pnpm --filter @monorepo/api db:generate
+
+      - name: Generate Next.js types
+        run: pnpm --filter @monorepo/web exec next typegen
+
+      - name: Run tests
+        run: pnpm -w test
+
+      - name: Build
+        run: pnpm -w build
+
+  seed-integrity:
+    name: Seed Integrity Check
+    needs: [security-checks]
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: projects
+    services:
+      mysql:
+        image: mysql:8.4
+        env:
+          MYSQL_DATABASE: app_test
+          MYSQL_USER: testuser
+          MYSQL_PASSWORD: testpass
+          MYSQL_ROOT_PASSWORD: rootpass
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd "mysqladmin ping -h localhost -u testuser -ptestpass"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: mysql://testuser:testpass@localhost:3306/app_test
+      NODE_ENV: test
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 20
+          cache: 'pnpm'
+          cache-dependency-path: projects/pnpm-lock.yaml
+
+      - name: Setup Takumi Guard npm
+        uses: flatt-security/setup-takumi-guard-npm@v1
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate Prisma Client
+        run: pnpm --filter @monorepo/api db:generate
+
+      - name: Apply database schema
+        run: pnpm --filter @monorepo/api db:push
+
+      - name: Run seed
+        run: pnpm --filter @monorepo/api db:seed
+
+      - name: Run seed integrity checks
+        run: pnpm --filter @monorepo/api db:integrity-check
+
+  react-doctor:
+    name: React Doctor QA
+    runs-on: ubuntu-latest
+    # Only run when frontend source files are changed
+    # Uses a path filter at the job level to skip for non-frontend PRs
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Detect frontend changes
+        id: detect
+        run: |
+          # Determine base ref for diff
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            BASE_SHA="${{ github.event.pull_request.base.sha }}"
+          else
+            BASE_SHA="HEAD~1"
+          fi
+
+          CHANGED=$(git diff --name-only "$BASE_SHA"...HEAD \
+            -- 'projects/apps/web/src/' \
+            2>/dev/null | grep -E '\.(tsx|ts|jsx|js)$' || true)
+
+          if [ -n "$CHANGED" ]; then
+            echo "has_changes=true" >> "$GITHUB_OUTPUT"
+            echo "Frontend changes detected:"
+            echo "$CHANGED"
+          else
+            echo "has_changes=false" >> "$GITHUB_OUTPUT"
+            echo "No frontend changes detected. react-doctor will be skipped."
+          fi
+
+      - name: Build react-doctor Docker image
+        if: steps.detect.outputs.has_changes == 'true'
+        run: |
+          docker build \
+            -t react-doctor-runner:local \
+            -f tools/react-doctor/Dockerfile \
+            tools/react-doctor/
+
+      - name: Run react-doctor
+        if: steps.detect.outputs.has_changes == 'true'
+        run: |
+          # NOTE: --diff requires git access which is unavailable inside the container.
+          # Change detection is handled by the detect step above, so react-doctor
+          # scans all source files. --tmpfs masks .next/ and node_modules/ build artifacts.
+          # react-doctor.config.json is auto-detected (no --config flag exists).
+          # --offline disables react-doctor's external API call (calculateScore POST).
+          # --network none enforces network isolation at the Docker layer (defense-in-depth).
+          # npm packages are pre-installed in the image at build time, so network is not needed at runtime.
+          # Create mountpoint dirs so --tmpfs works on the read-only bind mount.
+          mkdir -p projects/apps/web/.next projects/apps/web/node_modules
+          docker run --rm \
+            --network none \
+            -v "$(pwd)/projects/apps/web:/app:ro" \
+            --tmpfs /app/.next:ro \
+            --tmpfs /app/node_modules:ro \
+            -w /app \
+            react-doctor-runner:local \
+            --verbose \
+            --offline

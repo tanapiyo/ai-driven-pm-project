@@ -1,0 +1,56 @@
+openapi: 3.0.3
+info:
+  title: Health API
+  description: |
+    Basic health check endpoint.
+
+    ## ロール別アクセス権限
+
+    | エンドポイント | PLANNER | AGENT | EXEC | ADMIN |
+    |---------------|---------|-------|------|-------|
+    | GET /health | Public | Public | Public | Public |
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:3001
+    description: Local development server
+
+paths:
+  /health:
+    get:
+      operationId: getHealth
+      summary: Health Check
+      description: |
+        Returns the current health status of the API server.
+      tags:
+        - Health
+      responses:
+        '200':
+          description: Server is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+              examples:
+                healthy:
+                  summary: Healthy status
+                  value:
+                    status: ok
+                    timestamp: '2024-01-01T00:00:00.000Z'
+
+components:
+  schemas:
+    HealthResponse:
+      type: object
+      required:
+        - status
+        - timestamp
+      properties:
+        status:
+          type: string
+          enum: [ok]
+          description: Health status
+        timestamp:
+          type: string
+          format: date-time
+          description: Current server timestamp

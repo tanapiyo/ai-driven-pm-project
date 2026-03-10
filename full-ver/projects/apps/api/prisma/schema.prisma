@@ -1,0 +1,185 @@
+// Prisma Schema
+// https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "./generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+enum UserRole {
+  admin
+  user
+}
+
+enum UserStatus {
+  active
+  inactive
+}
+
+enum AuditAction {
+  create
+  update
+  delete
+  authorization_denied
+}
+
+enum TenantStatus {
+  active
+  suspended
+  deleted
+}
+
+enum ContentType {
+  music
+  video
+  image
+  document
+  other
+}
+
+enum ContentStatus {
+  draft
+  published
+  archived
+  deleted
+}
+
+enum EntitlementType {
+  purchase
+  subscription
+  trial
+  complimentary
+}
+
+model Tenant {
+  id        String       @id @default(uuid())
+  name      String
+  slug      String       @unique
+  status    TenantStatus @default(active)
+  createdAt DateTime     @default(now()) @map("created_at")
+  updatedAt DateTime     @updatedAt @map("updated_at")
+  deletedAt DateTime?    @map("deleted_at")
+
+  users    User[]
+  contents Content[]
+
+  @@map("tenants")
+}
+
+model User {
+  id         String     @id @default(uuid())
+  tenantId   String     @map("tenant_id")
+  authUserId String?    @map("auth_user_id")
+  name       String
+  email      String
+  role       UserRole   @default(user)
+  status     UserStatus @default(active)
+  createdAt  DateTime   @default(now()) @map("created_at")
+  updatedAt  DateTime   @updatedAt @map("updated_at")
+  deletedAt  DateTime?  @map("deleted_at")
+
+  tenant       Tenant         @relation(fields: [tenantId], references: [id])
+  authUser     AuthUser?      @relation(fields: [authUserId], references: [id])
+  entitlements Entitlement[]
+
+  @@unique([tenantId, email])
+  @@index([authUserId])
+  @@index([email])
+  @@map("users")
+}
+
+model Content {
+  id          String        @id @default(uuid())
+  tenantId    String        @map("tenant_id")
+  title       String
+  description String?       @db.Text
+  type        ContentType
+  status      ContentStatus @default(draft)
+  createdAt   DateTime      @default(now()) @map("created_at")
+  updatedAt   DateTime      @updatedAt @map("updated_at")
+  deletedAt   DateTime?     @map("deleted_at")
+
+  tenant       Tenant        @relation(fields: [tenantId], references: [id])
+  entitlements Entitlement[]
+
+  @@index([tenantId])
+  @@index([type])
+  @@index([status])
+  @@map("contents")
+}
+
+model Entitlement {
+  id        String          @id @default(uuid())
+  userId    String          @map("user_id")
+  contentId String          @map("content_id")
+  type      EntitlementType
+  grantedAt DateTime        @default(now()) @map("granted_at")
+  expiresAt DateTime?       @map("expires_at")
+  revokedAt DateTime?       @map("revoked_at")
+  createdAt DateTime        @default(now()) @map("created_at")
+
+  user    User    @relation(fields: [userId], references: [id])
+  content Content @relation(fields: [contentId], references: [id])
+
+  @@index([userId])
+  @@index([contentId])
+  @@index([userId, contentId])
+  @@map("entitlements")
+}
+
+model AuthUser {
+  id           String     @id @default(uuid())
+  email        String     @unique
+  name         String     @default("")
+  role         UserRole   @default(user)
+  status       UserStatus @default(active)
+  passwordHash String     @map("password_hash")
+  createdAt    DateTime   @default(now()) @map("created_at")
+  updatedAt    DateTime   @updatedAt @map("updated_at")
+  deletedAt    DateTime?  @map("deleted_at")
+
+  refreshTokens RefreshToken[]
+  auditLogs     AuditLog[]
+  users         User[]
+
+  @@map("auth_users")
+}
+
+model RefreshToken {
+  id        String    @id @default(uuid())
+  userId    String    @map("user_id")
+  tokenHash String    @unique @map("token_hash")
+  expiresAt DateTime  @map("expires_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+  revokedAt DateTime? @map("revoked_at")
+
+  user AuthUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("refresh_tokens")
+}
+
+model AuditLog {
+  id         String      @id @default(uuid())
+  actorId    String      @map("actor_id")
+  entityType String      @map("entity_type")
+  entityId   String      @map("entity_id")
+  action     AuditAction
+  changes    Json?
+  metadata   Json?
+  ipAddress  String?     @map("ip_address")
+  createdAt  DateTime    @default(now()) @map("created_at")
+
+  actor AuthUser @relation(fields: [actorId], references: [id])
+
+  @@index([actorId])
+  @@index([entityType])
+  @@index([action])
+  @@index([createdAt])
+  @@index([entityType, entityId])
+  @@map("audit_logs")
+}

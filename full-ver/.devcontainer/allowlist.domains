@@ -1,0 +1,78 @@
+# ==============================================================================
+# Allowed Outbound Domains for DevContainer Firewall
+# 
+# Format: One domain per line. Comments start with '#'
+# Changes to this file should be reviewed via PR.
+#
+# IMPORTANT: 
+#   - Add only domains that are strictly necessary
+#   - Document the reason for each addition in the PR
+#   - Consider using stack-specific addons for language registries
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
+# Claude / Anthropic Services
+# ------------------------------------------------------------------------------
+api.anthropic.com
+sentry.io
+statsig.anthropic.com
+statsig.com
+
+# ------------------------------------------------------------------------------
+# VS Code / Cursor Extensions & Updates
+# ------------------------------------------------------------------------------
+marketplace.visualstudio.com
+vscode.blob.core.windows.net
+update.code.visualstudio.com
+
+# ------------------------------------------------------------------------------
+# npm Registry (for npm install / Claude Code updates)
+# ------------------------------------------------------------------------------
+registry.npmjs.org
+npmjs.org
+www.npmjs.com
+
+# ------------------------------------------------------------------------------
+# Git LFS / GitHub Packages
+# ------------------------------------------------------------------------------
+github-cloud.githubusercontent.com
+github-cloud.s3.amazonaws.com
+objects.githubusercontent.com
+raw.githubusercontent.com
+codeload.github.com
+uploads.github.com
+pkg.github.com
+ghcr.io
+
+# ------------------------------------------------------------------------------
+# Terraform (HashiCorp) — for terraform CLI at runtime
+# ------------------------------------------------------------------------------
+releases.hashicorp.com
+checkpoint-api.hashicorp.com
+registry.terraform.io
+
+# ------------------------------------------------------------------------------
+# AWS CLI & AWS services — for aws CLI at runtime
+# ------------------------------------------------------------------------------
+awscli.amazonaws.com
+s3.amazonaws.com
+sts.amazonaws.com
+ec2.amazonaws.com
+
+# ------------------------------------------------------------------------------
+# Stack-specific registries (add via PR with justification)
+# Example entries (commented out - enable as needed):
+# ------------------------------------------------------------------------------
+# pypi.org                    # Python packages
+# files.pythonhosted.org      # Python package downloads
+# rubygems.org                # Ruby gems
+# crates.io                   # Rust crates
+# static.crates.io            # Rust crate downloads
+# proxy.golang.org            # Go modules
+# sum.golang.org              # Go module checksums
+# storage.googleapis.com      # Go module storage
+# repo1.maven.org             # Maven Central
+# plugins.gradle.org          # Gradle plugins
+# services.gradle.org         # Gradle services
+# nuget.org                   # .NET packages
+# api.nuget.org               # .NET package API

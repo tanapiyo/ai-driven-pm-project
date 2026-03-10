@@ -1,0 +1,45 @@
+# ==============================================================================
+# .dockerignore - Docker ビルドコンテキスト除外設定 (projects/ ディレクトリ)
+# ==============================================================================
+# ビルドコンテキストサイズを削減し、docker build を高速化する
+
+# Node.js 依存関係 (各ステージで再インストールされる)
+node_modules
+**/node_modules
+.pnpm-store
+
+# ビルド出力 (コンテナ内で再ビルドされる)
+dist
+**/dist
+build
+**/build
+.next
+**/.next
+.turbo
+
+# テスト・カバレッジ成果物
+coverage
+**/.nyc_output
+*.lcov
+**/__tests__
+
+# E2E テスト成果物
+e2e
+**/playwright-report
+**/test-results
+
+# ログ
+*.log
+logs
+
+# 環境変数ファイル (docker run -e または docker-compose で注入)
+.env
+.env.*
+!.env.example
+
+# IDE / エディタ
+.vscode
+.idea
+
+# Prisma 生成ファイル (builder ステージで再生成される)
+**/prisma/generated

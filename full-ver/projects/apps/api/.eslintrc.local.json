@@ -1,0 +1,45 @@
+{
+  "rules": {
+    "no-restricted-imports": [
+      "error",
+      {
+        "patterns": [
+          {
+            "group": ["**/presentation/**"],
+            "message": "Domain/Application layers must not import from Presentation layer (HTTP dependency violation)"
+          },
+          {
+            "group": ["hono", "@hono/*"],
+            "message": "Domain/Application layers must not import Hono (HTTP dependency violation)"
+          }
+        ]
+      }
+    ]
+  },
+  "overrides": [
+    {
+      "files": ["src/domain/**/*.ts", "src/application/**/*.ts"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "patterns": [
+              {
+                "group": ["**/presentation/**", "**/infrastructure/**"],
+                "message": "Domain/Application layers must not import from Presentation/Infrastructure layers"
+              },
+              {
+                "group": ["hono", "@hono/*", "express", "fastify"],
+                "message": "Domain/Application layers must not import HTTP frameworks"
+              },
+              {
+                "group": ["@prisma/client", "pg", "mysql", "mongodb"],
+                "message": "Domain/Application layers must not import database clients directly"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

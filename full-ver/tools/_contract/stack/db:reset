@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+# tools/contract/stack/db:reset
+# Reset database to initial state (drop, migrate, seed)
+
+set -euo pipefail
+
+REPO_ROOT="${REPO_ROOT:-$(git rev-parse --show-toplevel 2>/dev/null || pwd)}"
+cd "${REPO_ROOT}/projects"
+
+echo "Resetting database..."
+
+# Remove marker file to trigger re-initialization
+rm -f /workspace/.db-initialized
+
+# Run database operations
+pnpm --filter @monorepo/api db:generate
+pnpm --filter @monorepo/api db:push
+pnpm --filter @monorepo/api db:seed
+
+# Create marker file
+touch /workspace/.db-initialized
+
+echo "Database reset complete!"

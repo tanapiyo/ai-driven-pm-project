@@ -1,0 +1,352 @@
+{
+  "version": "1.0",
+  "generated_at": "2026-02-13T10:23:02.131737+00:00",
+  "source_url": "https://www.shokasonjuku.com/ux-psychology",
+  "concept_count": 43,
+  "concepts": [
+    {
+      "id": 1,
+      "slug": "aesthetic-usability-effect",
+      "title": "美的ユーザビリティ効果 (Aesthetic-Usability Effect)美的ユーザビリティ効果（エステティック・ユーザビリティ・エフェクト）とは、美しくデザインされたプロダクトやインターフェイスが、そうでない場合の製品より使用性が高いと感じられる現象のことを指します。",
+      "url": "https://www.shokasonjuku.com/ux-psychology/aesthetic-usability-effect",
+      "local_path": "sources/text/aesthetic-usability-effect.txt",
+      "content_hash": "72772c1fe41667669c42be2c563d7e122d01a501363813d514eb8c1d1e6f726c"
+    },
+    {
+      "id": 2,
+      "slug": "anchor-effect",
+      "title": "アンカー効果 (Anchor Effect)アンカー効果はユーザーが以前に提示された情報（アンカー）に基づいて、後続の情報を評価する傾向がある心理現象のことを指します。",
+      "url": "https://www.shokasonjuku.com/ux-psychology/anchor-effect",
+      "local_path": "sources/text/anchor-effect.txt",
+      "content_hash": "cc7014b005847bd25be0cf9c4e6c2f792545eaaba75af420dfb9446af20fc19c"
+    },
+    {
+      "id": 3,
+      "slug": "banner-blindness",
+      "title": "バナー・ブラインドネス (Banner Blindness)バナー・ブラインドネス（Banner Blindness）は、ユーザーがWebサイト上の広告バナーを無意識的に無視する現象を指します。",
+      "url": "https://www.shokasonjuku.com/ux-psychology/banner-blindness",
+      "local_path": "sources/text/banner-blindness.txt",
+      "content_hash": "ffb662db946596a6cde60b8f85bd130ed80ffa9993ce5c020a6a1532e08d9a44"
+    },
+    {
+      "id": 4,
+      "slug": "cognitive-load",
+      "title": "認知負荷 (Cognitive Load)認知負荷とは、ユーザーが情報を処理し、理解する際にかかる精神的なエネルギー量を指します。",
+      "url": "https://www.shokasonjuku.com/ux-psychology/cognitive-load",
+      "local_path": "sources/text/cognitive-load.txt",
+      "content_hash": "c43ba1fbe71950ffc21d638d71b4204c2e72b88a75b3b53f0a9de6399c97b6e1"
+    },
+    {
+      "id": 5,
+      "slug": "confirmation-bias",
+      "title": "確証バイアス (Confirmation Bias)確証バイアスは、人々が自分の既存の信念や仮説に合致する情報を優先的に受け入れ、逆に矛盾する情報に対しては目が届かない、または無視や否定する現象を指します。",
+      "url": "https://www.shokasonjuku.com/ux-psychology/confirmation-bias",
+      "local_path": "sources/text/confirmation-bias.txt",
+      "content_hash": "9b09215819eb8e1f783631b46193b2b231355d3d3ae7d353bde2da7e3a200225"
+    },
+    {
+      "id": 6,
+      "slug": "curiosity-gap",
+      "title": "好奇心ギャップ (Curiosity Gap)好奇心ギャップ（Curiosity Gap）とは、ユーザーが情報の欠如を埋めるために興味を持ち、行動を起こすように仕向けるUX手法です。",
+      "url": "https://www.shokasonjuku.com/ux-psychology/curiosity-gap",
+      "local_path": "sources/text/curiosity-gap.txt",
+      "content_hash": "a64b11dbd2f29de7043287ba6f99fe910adb883215dfad2deccb6a378f14280c"
+    },
+    {
+      "id": 7,
+      "slug": "decision-fatigue",
+      "title": "決断疲れ(Decision Fatigue)決断疲れとは、ユーザーが繰り返し決断を行うことと、回数につれ合理的な選択が難しくなる現象です。",
+      "url": "https://www.shokasonjuku.com/ux-psychology/decision-fatigue",
+      "local_path": "sources/text/decision-fatigue.txt",
+      "content_hash": "3d318d7c0db449b174e5b9559f7cbe8b23c02cda9bc0239876967ee4b65c1262"
+    },
+    {
+      "id": 8,
+      "slug": "decoy-effect",
+      "title": "おとり効果 (Decoy Effect)製品/値段等で複数の選択肢がある時に、おとりの選択肢を設けることで、ユーザーにとって他の選択肢がより魅力的に感じさせる誘導手法です。",
+      "url": "https://www.shokasonjuku.com/ux-psychology/decoy-effect",
+      "local_path": "sources/text/decoy-effect.txt",
+      "content_hash": "f11009bfcbe6c7e8a74094a5c51151e02469d6581821a1d6e04925070c068fa1"
+    },
+    {
+      "id": 9,
+      "slug": "default-bias",
+      "title": "デフォルト効果 (Default Bias)デフォルト効果(Default Bias)とは、人は選択肢がある場合、変更するインセンティブが魅力的でない限り、提示されたデフォルトの値にとどまることが多い現象を指します。",
+      "url": "https://www.shokasonjuku.com/ux-psychology/default-bias",
+      "local_path": "sources/text/default-bias.txt",
+      "content_hash": "a7453ac5a6d30476439a55918d9b077d3c751d36901dfaf6f701e7546a5d2b44"
+    },
+    {
+      "id": 10,
+      "slug": "doherty-threshold",
+      "title": "ドハティの閾値 (0.4秒の壁)ドハティの閾値（Doherty Threshold）は、ユーザーエクスペリエンスにおいて、ユーザーが0.4秒以上待たされると、興味喪失のリスクが高まる閾値を指します。この閾値は一般的に「0.4秒の壁」とも呼ばれております。",
+      "url": "https://www.shokasonjuku.com/ux-psychology/doherty-threshold",
+      "local_path": "sources/text/doherty-threshold.txt",
+      "content_hash": "254d492b5a0f86513b5dbe4ce6bde124399101243b5b90302745531808de5427"
+    },
+    {
+      "id": 11,
+      "slug": "empathy-gap",
+      "title": "共感ギャップ (Empathy Gap)共感ギャップ (Empathy Gap)とは、UXにおいて、デザイナーや開発者がユーザーの感情やニーズ、立場に対して共感できないことを指す概念です。",
+      "url": "https://www.shokasonjuku.com/ux-psychology/empathy-gap",
+      "local_path": "sources/text/empathy-gap.txt",
+      "content_hash": "e96233eebac122798d99c85c157680b9b4ce7a36734bdebf53f8a9a3561505e7"
+    },
+    {
+      "id": 12,
+      "slug": "endowment-effect",
+      "title": "授かり効果 (Endowment Effect)授かり効果(Endowment Effect)とは、自分が持っていないものを手に入れるよりも、自分がすでに所有しているものを市場価値と関係なく過剰に評価する傾向を指します。",
+      "url": "https://www.shokasonjuku.com/ux-psychology/endowment-effect",
+      "local_path": "sources/text/endowment-effect.txt",
+      "content_hash": "b4a9ea38ac63110d1c72a8e34434979720977e1076c180b64add5c53b11579a9"
+    },
+    {
+      "id": 13,
+      "slug": "expectation-bias",
+      "title": "期待バイアス (Expectation Bias)期待バイアスとは、人が事前に持っている期待や先入観が、実際の体験や評価に影響を与えることを心理学的な現象を指します。",
+      "url": "https://www.shokasonjuku.com/ux-psychology/expectation-bias",
+      "local_path": "sources/text/expectation-bias.txt",
+      "content_hash": "685a97abb6030bd5bb611e477728b3bbd33487614ff25c5cb4ba1e49e9c74576"
+    },
+    {
+      "id": 14,
+      "slug": "familiarity-bias",
+      "title": "親近性バイアス (Familiarity Bias)親近性バイアスとは、人が以前に経験したり見たりしたデザインや機能に対して親しみを感じる傾向のことです。",
+      "url": "https://www.shokasonjuku.com/ux-psychology/familiarity-bias",
+      "local_path": "sources/text/familiarity-bias.txt",
+      "content_hash": "55814be345992f249ec5283a3df6f42e1d9f542aaf9ed2cbb0f73ac2fec3f133"
+    },
+    {
+      "id": 15,
+      "slug": "foot-in-the-door-effect",
+      "title": "段階的要請 (Foot in the Door Effect)段階的要請、またの名はフット・イン・ザ・ドア効果(Foot in the Door Effect)は人は小さなお願いを受け入れた後、より大きなお願いも受け入れる傾向が高まる現象を指します。",
+      "url": "https://www.shokasonjuku.com/ux-psychology/foot-in-the-door-effect",
+      "local_path": "sources/text/foot-in-the-door-effect.txt",
+      "content_hash": "f8f7813701d7364d6aeb43d93684764727f82e5496e40708ebe142dc383b0aed"
+    },
+    {
+      "id": 16,
+      "slug": "framing",
+      "title": "フレーミング効果 (Framing)フレーミング効果は、情報そのものよりも、情報の提示方法（または言葉遣い）によって、自分の判断がより左右される場合に起こる心理的現象です。",
+      "url": "https://www.shokasonjuku.com/ux-psychology/framing",
+      "local_path": "sources/text/framing.txt",
+      "content_hash": "4bc5de0bff4211058d2ac31e29f4d4bed91bc1875922571414d8927d0a049bc0"
+    },
+    {
+      "id": 17,
+      "slug": "gamification",
+      "title": "ゲーミフィケーション (Gamification)ゲーミフィケーションとは、ゲームの要素や仕組みを取り入れることで、ユーザーのモチベーション向上や問題解決を促すアプローチのことを指します。",
+      "url": "https://www.shokasonjuku.com/ux-psychology/gamification",
+      "local_path": "sources/text/gamification.txt",
+      "content_hash": "45bbe696fcc3e2d04dc2f1a76f64e26e58aa53cd95bdd18de7bafa442523b686"
+    },
+    {
+      "id": 18,
+      "slug": "goal-gradient-effect",
+      "title": "目標勾配効果 (Goal Gradient Effect)目標勾配効果 (Goal Gradient Effect)とは、ユーザーが目標に近づくにつれ、行動や努力を加速させる心理的な現象です。",
+      "url": "https://www.shokasonjuku.com/ux-psychology/goal-gradient-effect",
+      "local_path": "sources/text/goal-gradient-effect.txt",
+      "content_hash": "2b626f93ddad953480d354657d00b71399135d822e5a6dded04bb4f5e125f5a3"
+    },
+    {
+      "id": 19,
+      "slug": "halo-effect",
+      "title": "ハロー効果 (Halo Effect)ハロー効果は、企業が消費者から真実味のある社会的責任を果たしていると認識されると、尊敬を受け、消費者が企業をより高く評価する現象です。",
+      "url": "https://www.shokasonjuku.com/ux-psychology/halo-effect",
+      "local_path": "sources/text/halo-effect.txt",
+      "content_hash": "60ec19addb64f2f837564f5863f52c3ec5974e0ea57e802d1047c68176362428"
+    },
+    {
+      "id": 20,
+      "slug": "hawthorne-effect",
+      "title": "観察効果 (Hawthorne Effect)観察効果、またの名「ホーソン効果」とは、人は観察されていることに対する自覚によって、自分の行動を変えてしまう傾向を指します。",
+      "url": "https://www.shokasonjuku.com/ux-psychology/hawthorne-effect",
+      "local_path": "sources/text/hawthorne-effect.txt",
+      "content_hash": "20a6e43010e24b55f8cad09e19cc0410df12cca84915703a0ed47a9ca76e7d75"
+    },
+    {
+      "id": 21,
+      "slug": "intentional-friction",
+      "title": "意図的な壁 (Intentional Friction)意図的な壁とは、ユーザーエクスペリエンス（UX）において、意図的にユーザーの行動を妨げるステップを増やしたり、遅らせたりすることを目的としたデザイン手法です。",
+      "url": "https://www.shokasonjuku.com/ux-psychology/intentional-friction",
+      "local_path": "sources/text/intentional-friction.txt",
+      "content_hash": "00169d217da6d56659b4dd6ff47a81f92294fe29cd7b2f0e449269ef446f498f"
+    },
+    {
+      "id": 22,
+      "slug": "labor-illusion",
+      "title": "労働の錯覚 (Labor Illusion)労働の錯覚（Labor Illusion）とは、サービスがユーザーに提供される過程で、労力や時間がかかっているように見せることで、ユーザーがサービスの価値を高く感じる現象のことです。",
+      "url": "https://www.shokasonjuku.com/ux-psychology/labor-illusion",
+      "local_path": "sources/text/labor-illusion.txt",
+      "content_hash": "915b7e3ad84c9b6a3cf399190fd957d91312a7751cab41a0a2c020099fffab13"
+    },
+    {
+      "id": 23,
+      "slug": "loss-aversion",
+      "title": "損失回避 (Loss Aversion)損失回避 (Loss Aversion)とは、ユーザーが潜在的な損失を避ける傾向や行動を指します。この心理現象は、人々が利益を得るよりも損失を避けたいという感情に基づいています。",
+      "url": "https://www.shokasonjuku.com/ux-psychology/loss-aversion",
+      "local_path": "sources/text/loss-aversion.txt",
+      "content_hash": "d83f3e0e6ab26d9bea803b2ab08763e386b4da89fe6807ef8542d4920d637ef4"
+    },
+    {
+      "id": 24,
+      "slug": "nudge",
+      "title": "ナッジ効果 (Nudge)ナッジ効果（nudge）とは、ユーザーの意思決定や行動を、彼らが望む方向に、効果的かつ非強制的に誘導するデザイン手法です",
+      "url": "https://www.shokasonjuku.com/ux-psychology/nudge",
+      "local_path": "sources/text/nudge.txt",
+      "content_hash": "35ae477b794da6815219440581c701f5acbd8f02a9a282aa158e2afdec9590cb"
+    },
+    {
+      "id": 25,
+      "slug": "peak-end-rule",
+      "title": "ピーク・エンドの法則 (Peak-End Rule)ピーク・エンドの法則(Peak-End Rule)とは、人がある体験を評価する際に、平均や合計に基づいて体験を評価するのではなく、体験の内の最高の瞬間（ピーク）と終わりの瞬間（エンド）を重視する法則です。",
+      "url": "https://www.shokasonjuku.com/ux-psychology/peak-end-rule",
+      "local_path": "sources/text/peak-end-rule.txt",
+      "content_hash": "3e189332930ab65c40de2cd3f178f9dce6c0b036ec240874f1e9110e17515608"
+    },
+    {
+      "id": 26,
+      "slug": "priming",
+      "title": "プライミング効果 (Priming)プライミング効果とは、あらかじめ受けた刺激（情報）によって、その後の行動が意識的または無意識に影響されることを指します。",
+      "url": "https://www.shokasonjuku.com/ux-psychology/priming",
+      "local_path": "sources/text/priming.txt",
+      "content_hash": "7a428961102a612260c19c2975a0068b546cb0b04e01abecfa32604839209f1f"
+    },
+    {
+      "id": 27,
+      "slug": "progressive-disclosure",
+      "title": "段階的開示 (Progressive Disclosure)段階的開示とは、情報や機能を段階的に表示して、ユーザーが必要な時に必要な情報や機能にアクセスできるようにするユーザーエクスペリエンス (UX) デザイン手法です。",
+      "url": "https://www.shokasonjuku.com/ux-psychology/progressive-disclosure",
+      "local_path": "sources/text/progressive-disclosure.txt",
+      "content_hash": "d15d95988bf6c179e4a3f1af2dceb778d9a2f569a6ed4083175b3823de2a7017"
+    },
+    {
+      "id": 28,
+      "slug": "pygmalion-effect",
+      "title": "ピグマリオン効果 (Pygmalion Effect)ピグマリオン効果とは、ユーザーエクスペリエンス（UX）の文脈において、ユーザーがプロダクトやサービスに対して期待や信念を持っている場合、その期待が現実となる傾向がある現象です。",
+      "url": "https://www.shokasonjuku.com/ux-psychology/pygmalion-effect",
+      "local_path": "sources/text/pygmalion-effect.txt",
+      "content_hash": "5f40617b5a827680bb4b41273fec2f64d66e9edcba08e6300e92bc6be3cce163"
+    },
+    {
+      "id": 29,
+      "slug": "reactance",
+      "title": "誘導抵抗 (Reactance)誘導抵抗とは、ユーザーが制約や制限を感じたときに生じる心理的反発のことです。",
+      "url": "https://www.shokasonjuku.com/ux-psychology/reactance",
+      "local_path": "sources/text/reactance.txt",
+      "content_hash": "989a3ad982174163ee43e702a286e4bd47bf3bad7909fbf7f7997928db83132c"
+    },
+    {
+      "id": 30,
+      "slug": "reactive-onboarding",
+      "title": "反応型オンボーディング (Reactive Onboarding)反応型オンボーディングとは、ユーザーの行動やニーズに応じて表示されるオンボーディングプロセスのことを指します。",
+      "url": "https://www.shokasonjuku.com/ux-psychology/reactive-onboarding",
+      "local_path": "sources/text/reactive-onboarding.txt",
+      "content_hash": "1346df3ea4dd69f864b2ddc4e9991189fe1c257282cea3fd56fa7f00479808a9"
+    },
+    {
+      "id": 31,
+      "slug": "scarcity",
+      "title": "希少性効果 (Scarcity)希少性効果(Scarcity)とは、商品の入手可能な数が限られているか、あるいは入手が難しいと感じる状況において、消費者はその商品に対して高い価値を見出し、購入意欲を向上させる効果を指します。",
+      "url": "https://www.shokasonjuku.com/ux-psychology/scarcity",
+      "local_path": "sources/text/scarcity.txt",
+      "content_hash": "f4e361ce0f953bce4741b9cb7b882516390ba46a3f6100cc95cd21030606e70a"
+    },
+    {
+      "id": 32,
+      "slug": "selective-attention",
+      "title": "選択的注意 (Selective Attention)選択的注意(Selective Attention)とは、ユーザーが情報過多の状況下でも、目的に沿った情報やタスクに集中し、他の無関係な刺激や情報を無視する傾向を指します。",
+      "url": "https://www.shokasonjuku.com/ux-psychology/selective-attention",
+      "local_path": "sources/text/selective-attention.txt",
+      "content_hash": "db708ed2309f59e3f875aac3e33991c730a774de8e77da27636a77d11dbef3d7"
+    },
+    {
+      "id": 33,
+      "slug": "serial-position-effect",
+      "title": "系列位置効果 (Serial Position Effect)系列位置効果(Serial Position Effect)とは、リストや情報のグループが提示された際、最初と最後に位置する項目が、中間に位置する項目よりも記憶しやすくなる傾向に関するの認知の現象です。",
+      "url": "https://www.shokasonjuku.com/ux-psychology/serial-position-effect",
+      "local_path": "sources/text/serial-position-effect.txt",
+      "content_hash": "3f12c2ab8c5dbd568a2f9ec623af291d91d0b7938962c64fc9bd7f18fe2804ff"
+    },
+    {
+      "id": 34,
+      "slug": "skeuomorphism",
+      "title": "スキューモーフィズム (Skeuomorphism)スキューモーフィズム (Skeuomorphism)とは、ユーザーの理解を容易にするために、デジタルインターフェース上の物体が現実世界の物体の見た目を模倣するデザイン手法です。",
+      "url": "https://www.shokasonjuku.com/ux-psychology/skeuomorphism",
+      "local_path": "sources/text/skeuomorphism.txt",
+      "content_hash": "f450a01575caa91a6611a8011caa3d3073b14397da90db2e171bad97faa18c4d"
+    },
+    {
+      "id": 35,
+      "slug": "social-proof",
+      "title": "社会的証明 (Social Proof)社会的証明(Social Proof)とは、人が他者の意見や行動に影響を受ける心理現象を指し、プロダクトやサービスの信頼性や魅力を高めるために、他のユーザーの評価や使用状況を表示するデザイン手法です。",
+      "url": "https://www.shokasonjuku.com/ux-psychology/social-proof",
+      "local_path": "sources/text/social-proof.txt",
+      "content_hash": "334c6ee5fc43b6aeee79c50f94464b8db505721fe82b012133b5d1a03c14bc2c"
+    },
+    {
+      "id": 36,
+      "slug": "sunk-cost-effect",
+      "title": "サンクコスト効果 (Sunk Cost Effect)サンクコスト効果(または沈没費用効果)とは、過去に資源や労力（金銭、時間、エネルギーなど）を投資したことを正当化しようと、さらなる資源や労力を投入する心理的な傾向を指します。",
+      "url": "https://www.shokasonjuku.com/ux-psychology/sunk-cost-effect",
+      "local_path": "sources/text/sunk-cost-effect.txt",
+      "content_hash": "a1e3239324ccff619b5494a4c86ed8c18d48e803005e0c663730aeee16123ffd"
+    },
+    {
+      "id": 37,
+      "slug": "survey-bias",
+      "title": "調査バイアス (Survey Bias)調査バイアス(Survey Bias)とは、調査結果が本来の母集団の特性を正確に反映していない状態で、誤差や偏りが生じていることを意味します。",
+      "url": "https://www.shokasonjuku.com/ux-psychology/survey-bias",
+      "local_path": "sources/text/survey-bias.txt",
+      "content_hash": "d1bab7ede247ed7039323fa0fc84d5ca92353ac4829b7f5b05251fce041fe941"
+    },
+    {
+      "id": 38,
+      "slug": "temptation-bundling",
+      "title": "誘惑の結びつけ (Temptation Bundling)誘惑の結びつけ (Temptation Bundling)とは好きな活動（誘惑）と苦手なタスクや行いたくない活動を一緒に行うことで、難しいタスクへの取り組みを容易にするデザイン手法です。",
+      "url": "https://www.shokasonjuku.com/ux-psychology/temptation-bundling",
+      "local_path": "sources/text/temptation-bundling.txt",
+      "content_hash": "8708b4d04e5a04669eb437dbefd501d69b9b76c42cdf31bbc3ecc22768cc690d"
+    },
+    {
+      "id": 39,
+      "slug": "user-delight",
+      "title": "ユーザー歓喜効果 (User Delight)ユーザー歓喜効果、またはユーザーデライト(User Delight)とは、プロダクトやサービスを使用することで、ユーザーが感じる喜びや驚きの瞬間を指します。",
+      "url": "https://www.shokasonjuku.com/ux-psychology/user-delight",
+      "local_path": "sources/text/user-delight.txt",
+      "content_hash": "69f4c7212b7aed42e5d6091e1114c6475c98e45e2e890f135ed2a0aea6203ff3"
+    },
+    {
+      "id": 40,
+      "slug": "variable-reward",
+      "title": "変動型報酬 (Variable Reward)変動型報酬(またの名は可変報酬)は、報酬の大きさや頻度が一定でなく、予測できない性質を持つことで、人間の興味や継続性を高める効果がある報酬システムを指します。",
+      "url": "https://www.shokasonjuku.com/ux-psychology/variable-reward",
+      "local_path": "sources/text/variable-reward.txt",
+      "content_hash": "422b36c3001527371b72fbe27f69273b74f8a801094ddb41036346b1988be39b"
+    },
+    {
+      "id": 41,
+      "slug": "visual-anchor",
+      "title": "ビジュアル・アンカー (Visual Anchor)ビジュアル・アンカー(Visual Anchor)とは、デザインやレイアウトの中で視覚的な目立ちやすさや強調を利用して、ユーザーの注意を特定の要素に引き付けるためのデザイン原則です。",
+      "url": "https://www.shokasonjuku.com/ux-psychology/visual-anchor",
+      "local_path": "sources/text/visual-anchor.txt",
+      "content_hash": "d06ad14c7d89cc07c45fac4f6b81f9981d89ef26b0f7c70f0e951eeb675e32cc"
+    },
+    {
+      "id": 42,
+      "slug": "visual-hierarchy",
+      "title": "視覚的階層（Visual Hierarchy）視覚的階層（ビジュアルヒエラルキー）とは、デザイン要素を配置し、情報を整理するための手法であり、視覚的に優先順位を付けることです。",
+      "url": "https://www.shokasonjuku.com/ux-psychology/visual-hierarchy",
+      "local_path": "sources/text/visual-hierarchy.txt",
+      "content_hash": "eed663cf5b33a976713e1724aabc5cb2003aae3551c68ca3bfed052c32b72b87"
+    },
+    {
+      "id": 43,
+      "slug": "zeigarnik-effect",
+      "title": "ツァイガルニク効果 (Zeigarnik Effect)ツァイガルニク効果とは、未完了のタスクが完了したタスクよりも記憶に残る現象を指します。",
+      "url": "https://www.shokasonjuku.com/ux-psychology/zeigarnik-effect",
+      "local_path": "sources/text/zeigarnik-effect.txt",
+      "content_hash": "63f2a3d13a8fbcd4970e85b21c5f840c6aaafa472a952d223fbd87067b050cfa"
+    }
+  ]
+}

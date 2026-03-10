@@ -1,0 +1,7 @@
+# Raw HTML files are large and not needed in git
+sources/raw/
+
+# Python artifacts
+.venv/
+__pycache__/
+*.pyc

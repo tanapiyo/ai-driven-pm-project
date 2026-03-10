@@ -1,0 +1,9 @@
+{
+  "slug": "doherty-threshold",
+  "title": "ドハティの閾値 (0.4秒の壁)ドハティの閾値（Doherty Threshold）は、ユーザーエクスペリエンスにおいて、ユーザーが0.4秒以上待たされると、興味喪失のリスクが高まる閾値を指します。この閾値は一般的に「0.4秒の壁」とも呼ばれております。",
+  "url": "https://www.shokasonjuku.com/ux-psychology/doherty-threshold",
+  "crawled_at": "2026-02-13T10:09:04.893941+00:00",
+  "content_hash": "254d492b5a0f86513b5dbe4ce6bde124399101243b5b90302745531808de5427",
+  "raw_path": "sources/raw/doherty-threshold.html",
+  "text_path": "sources/text/doherty-threshold.txt"
+}

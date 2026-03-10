@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+set -euo pipefail
+REPO_ROOT="${REPO_ROOT:-$(git rev-parse --show-toplevel 2>/dev/null || pwd)}"
+exec "${REPO_ROOT}/tools/policy/validate-adr.sh" "$@"

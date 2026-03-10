@@ -1,0 +1,109 @@
+# Docker Compose for Development
+# Run: ./tools/contract dev
+#
+# Services:
+#   web  - Next.js frontend (port 3000)
+#   api  - Hono/Express backend (port 8080)
+#   db   - MySQL 8 (port 3306)
+#
+# Usage:
+#   ./tools/contract dev
+#   curl http://localhost:3000/
+#   curl http://localhost:8080/health
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile.dev
+    container_name: YOUR_PROJECT-web
+    ports:
+      - '3000:3000'
+    volumes:
+      - ./apps/web/src:/app/apps/web/src:cached
+      - ./packages:/app/packages:cached
+      - web_node_modules:/app/node_modules
+      - web_app_node_modules:/app/apps/web/node_modules
+    environment:
+      - NODE_ENV=development
+      - PORT=3000
+      - HOSTNAME=0.0.0.0
+      - NEXT_PUBLIC_API_URL=http://localhost:8080
+      - INTERNAL_API_URL=http://api:8080
+    depends_on:
+      api:
+        condition: service_healthy
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:3000/']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    restart: unless-stopped
+    networks:
+      - app-network
+
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile.dev
+    container_name: YOUR_PROJECT-api
+    ports:
+      - '8080:8080'
+      - '9229:9229'
+    volumes:
+      - ./apps/api/src:/app/apps/api/src:cached
+      - ./packages:/app/packages:cached
+      - api_node_modules:/app/node_modules
+      - api_app_node_modules:/app/apps/api/node_modules
+    environment:
+      - NODE_ENV=development
+      - PORT=8080
+      - DEBUG_PORT=9229
+      - DATABASE_URL=mysql://devuser:devpass@db:3306/devdb
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:8080/health']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    restart: unless-stopped
+    networks:
+      - app-network
+
+  db:
+    image: mysql:8.4
+    container_name: YOUR_PROJECT-db
+    ports:
+      - '3306:3306'
+    environment:
+      # DEVELOPMENT ONLY - not for production use
+      MYSQL_USER: devuser
+      MYSQL_PASSWORD: devpass
+      MYSQL_DATABASE: devdb
+      MYSQL_ROOT_PASSWORD: rootpass
+    volumes:
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test: ['CMD', 'mysqladmin', 'ping', '-h', 'localhost', '-u', 'devuser', '-pdevpass']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    restart: unless-stopped
+    networks:
+      - app-network
+
+volumes:
+  api_node_modules:
+  api_app_node_modules:
+  web_node_modules:
+  web_app_node_modules:
+  db_data:
+
+networks:
+  app-network:
+    driver: bridge

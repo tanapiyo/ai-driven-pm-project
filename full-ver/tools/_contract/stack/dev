@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+# Contract: dev - Start development services with docker-compose
+set -euo pipefail
+
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../../.." && pwd)"
+cd "${REPO_ROOT}/projects"
+
+if [[ ! -f "docker-compose.yaml" ]]; then
+  echo "ERROR: docker-compose.yaml not found in projects/"
+  echo "Ensure the stack has been properly applied."
+  exit 1
+fi
+
+echo "🚀 Starting development services..."
+echo ""
+
+# Check if docker compose (V2) is available
+if docker compose version &>/dev/null; then
+  COMPOSE_CMD="docker compose"
+else
+  COMPOSE_CMD="docker-compose"
+fi
+
+# Build and start services
+${COMPOSE_CMD} up --build -d
+
+echo ""
+echo "✅ Services started. Use the following commands:"
+echo "   ./tools/contract dev:logs   - View logs"
+echo "   ./tools/contract dev:stop   - Stop services"
+echo ""
+echo "📍 Endpoints:"
+echo "   API: http://localhost:3000"
+echo "   Debug: localhost:9229 (attach with VS Code debugger)"

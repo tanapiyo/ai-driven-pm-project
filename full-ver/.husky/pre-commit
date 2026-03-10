@@ -1,0 +1,131 @@
+#!/bin/sh
+
+# Secrets detection in staged files
+# Patterns to detect common secrets and credentials
+
+STAGED_FILES=$(git diff --cached --name-only --diff-filter=ACM)
+
+if [ -z "$STAGED_FILES" ]; then
+  exit 0
+fi
+
+FOUND_SECRETS=0
+
+for FILE in $STAGED_FILES; do
+  # Skip binary files and common non-secret files
+  case "$FILE" in
+    *.png|*.jpg|*.jpeg|*.gif|*.ico|*.woff|*.woff2|*.ttf|*.eot|*.svg|*.lock|*.lockb)
+      continue
+      ;;
+  esac
+
+  # Skip example/template files
+  case "$FILE" in
+    *.example|*.template)
+      continue
+      ;;
+  esac
+
+  if [ -f "$FILE" ]; then
+    DIFF_CONTENT=$(git diff --cached "$FILE")
+
+    # AWS Access Key ID
+    if echo "$DIFF_CONTENT" | grep -qE 'AKIA[0-9A-Z]{16}'; then
+      echo "ERROR: Potential AWS Access Key detected in $FILE"
+      FOUND_SECRETS=1
+    fi
+
+    # GitHub tokens
+    if echo "$DIFF_CONTENT" | grep -qE 'gh[pousr]_[a-zA-Z0-9]{36}'; then
+      echo "ERROR: Potential GitHub token detected in $FILE"
+      FOUND_SECRETS=1
+    fi
+
+    # Private keys (check for actual PEM header with dashes)
+    if echo "$DIFF_CONTENT" | grep -qE '^[\+]-----BEGIN .* PRIVATE KEY-----'; then
+      echo "ERROR: Potential private key detected in $FILE"
+      FOUND_SECRETS=1
+    fi
+
+    # JWT tokens
+    if echo "$DIFF_CONTENT" | grep -qE 'eyJ[a-zA-Z0-9_-]+\.eyJ[a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+'; then
+      echo "ERROR: Potential JWT token detected in $FILE"
+      FOUND_SECRETS=1
+    fi
+  fi
+done
+
+if [ $FOUND_SECRETS -eq 1 ]; then
+  echo ""
+  echo "Commit blocked: Potential secrets detected in staged files."
+  echo "If this is a false positive, you can:"
+  echo "  1. Add the file to .gitignore"
+  echo "  2. Use 'git commit --no-verify' (not recommended)"
+  echo ""
+  exit 1
+fi
+
+# Run lint-staged for code quality (only if npx is available and in projects directory context)
+if command -v npx >/dev/null 2>&1 && [ -d "projects" ] && [ -f "projects/package.json" ]; then
+  cd projects && npx --yes lint-staged
+  cd ..
+fi
+
+# Check if OpenAPI spec is staged but generated files are not
+# This prevents CI failures due to out-of-sync generated files
+check_openapi_sync() {
+  STAGED_FILES=$(git diff --cached --name-only)
+
+  # Check if openapi.yaml is staged
+  if echo "$STAGED_FILES" | grep -q "packages/api-contract/openapi.yaml"; then
+    # Check if generated files are also staged
+    if ! echo "$STAGED_FILES" | grep -q "apps/api/src/generated/oas"; then
+      echo ""
+      echo "⚠️  WARNING: openapi.yaml is staged but generated files are not."
+      echo ""
+      echo "   The OpenAPI spec has changed. Please ensure generated files are in sync:"
+      echo "   1. cd projects"
+      echo "   2. pnpm openapi:generate"
+      echo "   3. pnpm format"
+      echo "   4. git add apps/api/src/generated/oas"
+      echo ""
+      echo "   Or lint-staged should have done this automatically."
+      echo "   If generated files weren't staged, please check the lint-staged output."
+      echo ""
+    fi
+  fi
+}
+
+if [ -d "projects" ]; then
+  check_openapi_sync
+fi
+
+# Check if package.json is staged but pnpm-lock.yaml is not
+# This prevents CI failures due to lockfile drift (see Issue #457)
+check_lockfile_sync() {
+  STAGED_FILES=$(git diff --cached --name-only)
+
+  # Check if any package.json under projects/ is staged
+  if echo "$STAGED_FILES" | grep -q "^projects/.*package\.json$"; then
+    # Check if pnpm-lock.yaml is also staged
+    if ! echo "$STAGED_FILES" | grep -q "^projects/pnpm-lock\.yaml$"; then
+      echo ""
+      echo "⚠️  WARNING: package.json is staged but pnpm-lock.yaml is not."
+      echo ""
+      echo "   Dependencies may have changed. Please ensure lockfile is in sync:"
+      echo "   1. cd projects"
+      echo "   2. pnpm install"
+      echo "   3. git add projects/pnpm-lock.yaml"
+      echo ""
+      echo "   If only non-dependency fields changed (scripts, name, etc.),"
+      echo "   this warning can be safely ignored. CI will verify."
+      echo ""
+    fi
+  fi
+}
+
+if [ -d "projects" ]; then
+  check_lockfile_sync
+fi
+
+exit 0

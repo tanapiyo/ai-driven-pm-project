@@ -1,0 +1,27 @@
+{
+  "name": "@monorepo/api-contract",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "description": "OpenAPI definitions and generated TypeScript clients",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsup src/index.ts --format esm --dts",
+    "typecheck": "tsc --noEmit",
+    "openapi:generate": "orval",
+    "openapi:check": "orval && prettier --write src/generated && git diff --exit-code src/generated || (echo '\\n❌ Error: OpenAPI generated files are out of sync.\\n\\n🔧 To fix locally:\\n   cd projects\\n   pnpm openapi:generate\\n   pnpm format\\n   git add -A && git commit --amend --no-edit\\n\\n📖 See: docs/05_development/openapi_workflow.md\\n' && exit 1)"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "orval": "^8.5.1",
+    "tsup": "^8.0.0",
+    "typescript": "^5.3.0"
+  }
+}

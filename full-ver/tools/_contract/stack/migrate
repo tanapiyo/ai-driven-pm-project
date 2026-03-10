@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
+API_DIR="${REPO_ROOT}/projects/apps/api"
+
+cd "${API_DIR}"
+
+echo "🗄️  Running Prisma migration..."
+
+# Check if pnpm is available
+if command -v pnpm &> /dev/null; then
+  pnpm prisma migrate dev "$@"
+elif command -v npm &> /dev/null; then
+  npm run prisma migrate dev -- "$@"
+else
+  echo "ERROR: Neither pnpm nor npm found"
+  exit 1
+fi
+
+echo "✅ Migration completed"

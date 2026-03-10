@@ -1,0 +1,324 @@
+# Agent Routing Rules
+# Maps request patterns to appropriate agents and workflows
+#
+# Pattern matching is case-insensitive and uses simple keyword matching
+# Priority: First match wins (more specific rules should come first)
+
+version: "1.0"
+
+# === Routing Rules ===
+# Each rule has:
+#   - patterns: Keywords to match (OR logic)
+#   - exclude_patterns: Keywords that prevent matching
+#   - agent: Primary agent to assign
+#   - workflow: Workflow type (sequential, parallel, direct)
+#   - pipeline: Sequence of agents for sequential workflow
+
+rules:
+  # === Bug Fix (higher priority than new feature) ===
+  - id: "bug-fix"
+    name: "Bug Fix"
+    patterns:
+      - "バグ"
+      - "bug"
+      - "fix"
+      - "修正"
+      - "直して"
+      - "動かない"
+      - "エラー"
+      - "error"
+      - "issue"
+      - "broken"
+      - "壊れ"
+    agent: "implementer"
+    workflow: "sequential"
+    pipeline:
+      - agent: "implementer"
+        output: "code"
+        description: "Fix the bug"
+      - agent: "qa"
+        output: "test"
+        description: "Verify the fix"
+
+  # === New Feature ===
+  - id: "new-feature"
+    name: "New Feature Request"
+    patterns:
+      - "新機能"
+      - "機能を追加"
+      - "feature"
+      - "add new"
+      - "implement"
+      - "create"
+      - "新しく作る"
+      - "〜を作って"
+      - "〜を追加して"
+      - "追加"
+    exclude_patterns:
+      - "fix"
+      - "bug"
+      - "修正"
+      - "バグ"
+    agent: "pdm"
+    workflow: "sequential"
+    pipeline:
+      - agent: "pdm"
+        output: "spec"
+        description: "Create spec and requirements"
+      - agent: "architect"
+        output: "plan"
+        description: "Create plan and ADR"
+      - agent: "implementer"
+        output: "code"
+        description: "Implement the feature"
+      - agent: "qa"
+        output: "test"
+        description: "Test and verify"
+      - agent: "reviewer"
+        output: "review"
+        description: "Final review"
+
+  # === Architecture Change ===
+  - id: "architecture"
+    name: "Architecture Change"
+    patterns:
+      - "アーキテクチャ"
+      - "architecture"
+      - "設計"
+      - "design"
+      - "リファクタ"
+      - "refactor"
+      - "restructure"
+      - "再設計"
+      - "構造"
+      - "ADR"
+    agent: "architect"
+    workflow: "sequential"
+    pipeline:
+      - agent: "architect"
+        output: "adr"
+        description: "Create ADR and plan"
+      - agent: "implementer"
+        output: "code"
+        description: "Implement changes"
+      - agent: "qa"
+        output: "test"
+        description: "Verify changes"
+
+  # === UI Change ===
+  - id: "ui-change"
+    name: "UI/UX Change"
+    patterns:
+      - "UI"
+      - "UX"
+      - "画面"
+      - "デザイン"
+      - "レイアウト"
+      - "screen"
+      - "layout"
+      - "interface"
+      - "見た目"
+      - "表示"
+    agent: "designer"
+    workflow: "sequential"
+    pipeline:
+      - agent: "designer"
+        output: "ui_requirements"
+        description: "Define UI requirements"
+      - agent: "pdm"
+        output: "spec"
+        description: "Update spec with UI"
+      - agent: "implementer"
+        output: "code"
+        description: "Implement UI"
+      - agent: "qa"
+        output: "test"
+        description: "Verify UI"
+
+  # === Documentation ===
+  - id: "documentation"
+    name: "Documentation Update"
+    patterns:
+      - "ドキュメント"
+      - "documentation"
+      - "doc"
+      - "README"
+      - "説明"
+      - "解説"
+      - "guide"
+      - "ガイド"
+    agent: "implementer"
+    workflow: "direct"
+    pipeline:
+      - agent: "implementer"
+        output: "docs"
+        description: "Update documentation"
+
+  # === Test ===
+  - id: "test"
+    name: "Add Tests"
+    patterns:
+      - "テスト"
+      - "test"
+      - "testing"
+      - "coverage"
+      - "カバレッジ"
+      - "検証"
+    agent: "qa"
+    workflow: "sequential"
+    pipeline:
+      - agent: "qa"
+        output: "test_plan"
+        description: "Create test plan"
+      - agent: "implementer"
+        output: "code"
+        description: "Implement tests"
+
+  # === Performance ===
+  - id: "performance"
+    name: "Performance Optimization"
+    patterns:
+      - "パフォーマンス"
+      - "performance"
+      - "高速化"
+      - "optimize"
+      - "最適化"
+      - "遅い"
+      - "slow"
+      - "speed"
+    agent: "architect"
+    workflow: "sequential"
+    pipeline:
+      - agent: "architect"
+        output: "plan"
+        description: "Analyze and plan optimization"
+      - agent: "implementer"
+        output: "code"
+        description: "Implement optimization"
+      - agent: "qa"
+        output: "test"
+        description: "Benchmark and verify"
+
+  # === Security ===
+  - id: "security"
+    name: "Security Enhancement"
+    patterns:
+      - "セキュリティ"
+      - "security"
+      - "脆弱性"
+      - "vulnerability"
+      - "認証"
+      - "auth"
+      - "permission"
+      - "権限"
+    agent: "architect"
+    workflow: "sequential"
+    pipeline:
+      - agent: "architect"
+        output: "adr"
+        description: "Security design and ADR"
+      - agent: "implementer"
+        output: "code"
+        description: "Implement security changes"
+      - agent: "qa"
+        output: "test"
+        description: "Security testing"
+      - agent: "reviewer"
+        output: "review"
+        description: "Security review"
+
+  # === Fallback ===
+  - id: "fallback"
+    name: "General Task"
+    patterns:
+      - ".*"
+    agent: "pdm"
+    workflow: "sequential"
+    pipeline:
+      - agent: "pdm"
+        output: "spec"
+        description: "Analyze and create spec"
+
+# === Agent Capabilities ===
+agents:
+  pdm:
+    name: "Product Manager"
+    prompt: "prompts/agents/pdm.md"
+    capabilities:
+      - "requirements"
+      - "spec"
+      - "acceptance_criteria"
+    outputs:
+      - "spec.md"
+      - "requirements.md"
+
+  architect:
+    name: "Architect"
+    prompt: "prompts/agents/architect.md"
+    capabilities:
+      - "design"
+      - "adr"
+      - "plan"
+      - "impact_analysis"
+    outputs:
+      - "plan.md"
+      - "adr/*.md"
+
+  designer:
+    name: "Product Designer"
+    prompt: "prompts/agents/designer.md"
+    capabilities:
+      - "ux"
+      - "ui"
+      - "wireframe"
+    outputs:
+      - "ui_requirements.md"
+      - "ux_flows.md"
+
+  implementer:
+    name: "Implementer"
+    prompt: "prompts/agents/implementer.md"
+    capabilities:
+      - "code"
+      - "test"
+      - "docs"
+    outputs:
+      - "src/**"
+      - "tests/**"
+
+  qa:
+    name: "QA Engineer"
+    prompt: "prompts/agents/qa.md"
+    capabilities:
+      - "test_plan"
+      - "test_execution"
+      - "verification"
+    outputs:
+      - "test-plan/*.md"
+      - "tests/**"
+
+  reviewer:
+    name: "Code Reviewer"
+    prompt: "prompts/agents/reviewer.md"
+    capabilities:
+      - "review"
+      - "approval"
+    outputs:
+      - "review_comments"
+
+# === Workflow Templates ===
+workflows:
+  sequential:
+    description: "Agents work one after another, passing context"
+    max_parallel: 1
+    retry_on_failure: true
+
+  parallel:
+    description: "Multiple agents work simultaneously on independent tasks"
+    max_parallel: 5
+    sync_point: true
+
+  direct:
+    description: "Single agent handles the task directly"
+    max_parallel: 1
+    retry_on_failure: false

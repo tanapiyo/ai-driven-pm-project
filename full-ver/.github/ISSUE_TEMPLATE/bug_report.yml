@@ -1,0 +1,221 @@
+---
+name: Bug Report
+description: バグの報告
+title: "[Bug] "
+labels: ["type:bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Bug Report
+        バグ報告ありがとうございます！
+        不明な項目は「Unknown」を選択するか、空欄でOKです。
+
+  # === 必須項目（最小限） ===
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: バグの内容（Problem）
+      description: 何が起きましたか？
+      placeholder: "〇〇をすると△△になる"
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: 期待する動作（Expected）
+      description: 本来どうなるべきですか？
+      placeholder: "〇〇をすると□□になるはず"
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: 実際の動作（Actual）
+      description: 実際に何が起きましたか？（Problem と同じなら省略可）
+      placeholder: "エラーが表示される / 画面が真っ白になる / 処理が終わらない"
+    validations:
+      required: false
+
+  # === 再現情報（Unknown可） ===
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: 再現手順（Reproduction Steps）
+      description: バグを再現する手順（不明な場合は「Unknown」と記入）
+      placeholder: |
+        1. '...' に移動
+        2. '...' をクリック
+        3. エラーが発生
+      value: |
+        1.
+        2.
+        3.
+    validations:
+      required: false
+
+  - type: dropdown
+    id: frequency
+    attributes:
+      label: 発生頻度（Frequency）
+      description: どのくらいの頻度で発生しますか？
+      options:
+        - "Unknown（不明）"
+        - "常に発生（100%）"
+        - "高頻度（50%以上）"
+        - "時々（10-50%）"
+        - "稀に（10%未満）"
+        - "一度だけ発生"
+      default: 0
+    validations:
+      required: false
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: 影響度（User Impact）
+      description: ユーザーへの影響はどの程度ですか？
+      options:
+        - "Unknown（不明）"
+        - "Critical: サービス利用不可"
+        - "High: 主要機能が使えない"
+        - "Medium: 一部機能に影響"
+        - "Low: 軽微な問題"
+      default: 0
+    validations:
+      required: false
+
+  - type: dropdown
+    id: regression
+    attributes:
+      label: 回帰バグ？（Regression）
+      description: 以前は正常に動作していましたか？
+      options:
+        - "Unknown（不明）"
+        - "Yes（以前は動いていた）"
+        - "No（最初から動かない）"
+      default: 0
+    validations:
+      required: false
+
+  # === 影響範囲 ===
+
+  - type: checkboxes
+    id: impact-points
+    attributes:
+      label: 影響範囲（Impact Points）
+      description: 関連しそうな領域をチェック（不明な場合は空でOK）
+      options:
+        - label: "UI / フロントエンド"
+        - label: "API / バックエンド"
+        - label: "認証 / 認可（Auth）"
+        - label: "データベース / データ構造"
+        - label: "テスト"
+        - label: "不明（Unknown）"
+
+  - type: checkboxes
+    id: devcontainer-hint
+    attributes:
+      label: 🐳 DevContainer 要否
+      description: このタスクで Docker 開発環境（DB/API/Web）が必要かを判定します。チェックなし = 自動判定（Impact Points から推定）
+      options:
+        - label: "DevContainer 不要（ドキュメント/設定ファイルのみの変更）"
+
+  # === 完了条件 ===
+
+  - type: textarea
+    id: definition-of-done
+    attributes:
+      label: 完了条件（Definition of Done）
+      description: "何ができたら修正完了か？"
+      placeholder: |
+        - [ ] 〇〇が正常に動作する
+        - [ ] 再発防止のテストが追加されている
+      value: |
+        - [ ] バグが修正されている
+        - [ ] 再発防止のテストが追加されている
+    validations:
+      required: true
+
+  # === 任意項目 ===
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: 環境（Environment）
+      description: 環境情報を教えてください
+      placeholder: |
+        - OS: macOS 14.0
+        - Node: 20.10.0
+        - Browser: Chrome 120
+    validations:
+      required: false
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: ログ / スクリーンショット（Logs / Screenshots）
+      description: エラーログやスクリーンショットがあれば
+    validations:
+      required: false
+
+  - type: textarea
+    id: risks-unknowns
+    attributes:
+      label: リスク/未確認事項（Risks/Unknowns）
+      description: 修正に関する不確実な点
+      placeholder: "原因が特定できていない / 影響範囲が不明"
+    validations:
+      required: false
+
+  - type: textarea
+    id: references
+    attributes:
+      label: 参考（References）
+      description: 関連リンク、エラーログ、関連 Issue など
+      placeholder: |
+        - Sentry: https://...
+        - 関連 Issue: #123
+    validations:
+      required: false
+
+  - type: dropdown
+    id: role
+    attributes:
+      label: 主担当職種（Role）
+      description: 主に誰が対応するか（Issue 作成後に対応するラベル role:* を付与してください。詳細は .github/labels.yml 参照）
+      options:
+        - "role:frontend — フロントエンド"
+        - "role:backend — バックエンド"
+        - "role:designer — デザイナー"
+        - "role:infra — インフラ"
+        - "role:ops — オペレーション"
+      default: 0
+    validations:
+      required: false
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: 優先度（Priority）
+      description: 緊急度・重要度の目安（Issue 作成後に対応するラベル priority:* を付与してください。詳細は .github/labels.yml 参照）
+      options:
+        - "priority:must — 必須（ブロッカー）"
+        - "priority:nice — Nice to Have"
+        - "priority:medium — 中優先度"
+        - "priority:low — 低優先度"
+      default: 0
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: 確認事項
+      options:
+        - label: 既存の Issue を検索し、重複がないことを確認しました
+          required: true

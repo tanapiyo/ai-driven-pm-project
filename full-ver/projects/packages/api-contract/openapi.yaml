@@ -1,0 +1,749 @@
+openapi: 3.0.3
+info:
+  title: Skeleton API
+  description: |
+    Skeleton API specification.
+    Core endpoints: health, auth, profile, admin audit-logs.
+  version: 0.0.1
+  contact:
+    name: API Team
+
+servers:
+  - url: http://localhost:3001
+    description: Local development
+
+tags:
+  - name: Health
+    description: Health check endpoints
+  - name: Auth
+    description: Authentication endpoints
+  - name: Profile
+    description: User profile management
+  - name: Admin
+    description: Admin-only endpoints
+  - name: Contents
+    description: Contents resource endpoints (tentative)
+
+security:
+  - BearerAuth: []
+
+paths:
+  # ============================================
+  # Health Endpoints
+  # ============================================
+  /health:
+    get:
+      operationId: getHealth
+      summary: Health check endpoint
+      tags:
+        - Health
+      security: []
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+
+  /version:
+    get:
+      operationId: getVersion
+      summary: API version information
+      description: Returns the current API version and runtime metadata.
+      tags:
+        - Health
+      security: []
+      responses:
+        '200':
+          description: Version information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VersionResponse'
+
+  /ping/deep:
+    get:
+      operationId: deepPing
+      summary: Deep health check with dependencies
+      tags:
+        - Health
+      security: []
+      responses:
+        '200':
+          description: All dependencies healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeepPingResponse'
+        '503':
+          description: Some dependencies unhealthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeepPingResponse'
+
+  # ============================================
+  # Auth Endpoints
+  # ============================================
+  /auth/login:
+    post:
+      operationId: login
+      summary: Login with email and password
+      tags:
+        - Auth
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenResponse'
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /auth/logout:
+    post:
+      operationId: logout
+      summary: Logout and invalidate refresh token
+      tags:
+        - Auth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshTokenRequest'
+      responses:
+        '204':
+          description: Logged out successfully
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /auth/refresh:
+    post:
+      operationId: refreshToken
+      summary: Refresh access token
+      tags:
+        - Auth
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshTokenRequest'
+      responses:
+        '200':
+          description: Token refreshed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenResponse'
+        '401':
+          description: Invalid or expired refresh token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /auth/me:
+    get:
+      operationId: getCurrentUser
+      summary: Get current authenticated user
+      tags:
+        - Auth
+      responses:
+        '200':
+          description: Current user info
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthUser'
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  # ============================================
+  # Profile Endpoints
+  # ============================================
+  /users/me/name:
+    patch:
+      operationId: updateMyName
+      summary: Update current user's name
+      tags:
+        - Profile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateNameRequest'
+      responses:
+        '200':
+          description: Name updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /users/me/password:
+    patch:
+      operationId: updateMyPassword
+      summary: Update current user's password
+      tags:
+        - Profile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdatePasswordRequest'
+      responses:
+        '204':
+          description: Password updated successfully
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Current password incorrect
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  # ============================================
+  # Contents Endpoints (tentative)
+  # ============================================
+  /contents:
+    get:
+      operationId: listContents
+      summary: List contents
+      description: |
+        Returns a paginated list of contents.
+        Note: This is a tentative endpoint. Schema details will be expanded in future issues.
+      tags:
+        - Contents
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+          description: Page number
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+          description: Number of items per page
+      responses:
+        '200':
+          description: Contents retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContentListResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /contents/{contentId}:
+    get:
+      operationId: getContent
+      summary: Get a content by ID
+      description: |
+        Returns a single content by its ID.
+        Note: This is a tentative endpoint. Schema details will be expanded in future issues.
+      tags:
+        - Contents
+      parameters:
+        - name: contentId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Content ID
+      responses:
+        '200':
+          description: Content retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Content'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Content not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  # ============================================
+  # Admin Endpoints
+  # ============================================
+  /admin/audit-logs:
+    get:
+      operationId: listAuditLogs
+      summary: List audit logs (admin only)
+      tags:
+        - Admin
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+        - name: actorId
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: entityType
+          in: query
+          schema:
+            type: string
+            enum:
+              - User
+              - Authorization
+        - name: action
+          in: query
+          schema:
+            type: string
+            enum:
+              - create
+              - update
+              - delete
+              - authorization_denied
+        - name: startDate
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: endDate
+          in: query
+          schema:
+            type: string
+            format: date-time
+      responses:
+        '200':
+          description: Audit logs retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuditLogListResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - Admin role required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    # ============================================
+    # Common
+    # ============================================
+    ErrorResponse:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+
+    Pagination:
+      type: object
+      required:
+        - page
+        - limit
+        - total
+        - totalPages
+      properties:
+        page:
+          type: integer
+        limit:
+          type: integer
+        total:
+          type: integer
+        totalPages:
+          type: integer
+
+    # ============================================
+    # Health
+    # ============================================
+    VersionResponse:
+      type: object
+      required:
+        - version
+        - name
+        - timestamp
+      properties:
+        version:
+          type: string
+          description: Semantic version of the API (from package.json)
+          example: '0.0.1'
+        name:
+          type: string
+          description: Package name of the API
+          example: '@monorepo/api'
+        timestamp:
+          type: string
+          format: date-time
+          description: Current server timestamp
+
+    HealthResponse:
+      type: object
+      required:
+        - status
+        - timestamp
+      properties:
+        status:
+          type: string
+          enum: [ok]
+        timestamp:
+          type: string
+          format: date-time
+
+    DeepPingResponse:
+      type: object
+      required:
+        - status
+        - timestamp
+        - totalLatencyMs
+        - checks
+      properties:
+        status:
+          type: string
+          enum: [ok, degraded, error]
+        timestamp:
+          type: string
+          format: date-time
+        totalLatencyMs:
+          type: integer
+          minimum: 0
+        checks:
+          type: array
+          items:
+            $ref: '#/components/schemas/HealthCheck'
+
+    HealthCheck:
+      type: object
+      required:
+        - name
+        - status
+        - latencyMs
+      properties:
+        name:
+          type: string
+        status:
+          type: string
+          enum: [ok, error]
+        latencyMs:
+          type: integer
+          minimum: 0
+        message:
+          type: string
+
+    # ============================================
+    # Auth
+    # ============================================
+    UserRole:
+      type: string
+      enum:
+        - admin
+        - user
+
+    LoginRequest:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+
+    RefreshTokenRequest:
+      type: object
+      required:
+        - refreshToken
+      properties:
+        refreshToken:
+          type: string
+
+    TokenResponse:
+      type: object
+      required:
+        - accessToken
+        - refreshToken
+        - expiresIn
+      properties:
+        accessToken:
+          type: string
+        refreshToken:
+          type: string
+        expiresIn:
+          type: integer
+
+    AuthUser:
+      type: object
+      required:
+        - id
+        - email
+        - name
+        - role
+        - createdAt
+        - updatedAt
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+          format: email
+        name:
+          type: string
+        role:
+          $ref: '#/components/schemas/UserRole'
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    # ============================================
+    # Profile
+    # ============================================
+    UpdateNameRequest:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+
+    UpdatePasswordRequest:
+      type: object
+      required:
+        - currentPassword
+        - newPassword
+      properties:
+        currentPassword:
+          type: string
+          minLength: 1
+        newPassword:
+          type: string
+          minLength: 8
+
+    UserProfile:
+      type: object
+      required:
+        - id
+        - email
+        - name
+        - createdAt
+        - updatedAt
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+          format: email
+        name:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    # ============================================
+    # Contents (tentative)
+    # ============================================
+    Content:
+      type: object
+      description: A content resource (tentative schema)
+      required:
+        - id
+        - title
+        - createdAt
+        - updatedAt
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Content ID
+        title:
+          type: string
+          description: Content title
+          minLength: 1
+          maxLength: 255
+        body:
+          type: string
+          description: Content body text
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+          description: Creation timestamp
+        updatedAt:
+          type: string
+          format: date-time
+          description: Last update timestamp
+
+    ContentListResponse:
+      type: object
+      required:
+        - items
+        - pagination
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Content'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+
+    # ============================================
+    # Admin
+    # ============================================
+    AuditLogListResponse:
+      type: object
+      required:
+        - data
+        - pagination
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/AuditLog'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+
+    AuditLog:
+      type: object
+      required:
+        - id
+        - actorId
+        - actorName
+        - entityType
+        - entityId
+        - action
+        - timestamp
+      properties:
+        id:
+          type: string
+          format: uuid
+        actorId:
+          type: string
+          format: uuid
+        actorName:
+          type: string
+        entityType:
+          type: string
+          enum:
+            - User
+            - Authorization
+        entityId:
+          type: string
+          format: uuid
+        action:
+          type: string
+          enum:
+            - create
+            - update
+            - delete
+            - authorization_denied
+        changes:
+          type: object
+          nullable: true
+          properties:
+            before:
+              type: object
+              additionalProperties: true
+            after:
+              type: object
+              additionalProperties: true
+        metadata:
+          type: object
+          nullable: true
+          additionalProperties: true
+        timestamp:
+          type: string
+          format: date-time
